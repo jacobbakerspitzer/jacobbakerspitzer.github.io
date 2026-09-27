@@ -4,15 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jacob Baker-Spitzer</title>
+
+  <!-- Loads the "Inter" font from Google Fonts (free) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 60px auto; padding: 0 20px; line-height: 1.6; }
-    a { margin-right: 16px; }
+    /* COLORS: change these 4 lines to restyle the whole site */
+    :root {
+      --bg: #0f1115;        /* page background (near-black) */
+      --card: #181b22;      /* project box background */
+      --text: #e6e6e6;      /* main text color */
+      --accent: #4fd1c5;    /* highlight color (teal); try #60a5fa for blue or #f59e0b for orange */
+    }
+
+    /* The whole page */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', Arial, sans-serif;
+      max-width: 760px;
+      margin: 60px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+
+    /* Your name */
+    h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 4px; }
+
+    /* Section titles like "Projects" */
+    h2 { color: var(--accent); margin-top: 48px; }
+
+    /* Links */
+    a { color: var(--accent); text-decoration: none; margin-right: 18px; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+
+    /* Each project box */
+    .project {
+      background: var(--card);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+    }
+    .project h3 { margin: 0 0 6px 0; }
+    .tags { color: #9aa0a6; font-size: 0.9rem; margin: 0 0 10px 0; }
+
+    /* Photos: never wider than the box */
+    .project img { width: 100%; max-width: 320px; border-radius: 6px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>Jacob Baker-Spitzer</h1>
 
-  <p>[Duke Pratt engineering student interested in electrical and computer engineering, tech, and economics]</p>
+  <h1>Jacob Baker-Spitzer</h1>
+  <p>Duke Pratt engineering student interested in electrical and computer engineering, tech, and economics.</p>
 
   <p>
     <a href="https://github.com/jacobbakerspitzer">GitHub</a>
@@ -20,5 +64,23 @@
     <a href="resume.pdf">Resume</a>
     <a href="mailto:jacob.baker-spitzer@duke.edu">Email</a>
   </p>
+
+  <h2>Projects</h2>
+
+  <!-- Project 1 -->
+  <div class="project">
+    <h3>Adaptive Fishing Game</h3>
+    <p class="tags">EGR 101 · Assistive technology · Fall 2026 – present</p>
+    <p>Standard game controllers don't work for a child with limited mobility, so our 5-person team is designing a fishing game he can play with just 2 switches. We're following the engineering design process, starting by interviewing him and his care team. So far we've defined the requirements and picked a design direction.</p>
+  </div>
+
+  <!-- Project 2 -->
+  <div class="project">
+    <h3>Hands-On Engineering Builds</h3>
+    <p class="tags">EGR 101 · Soldering · 3D printing · Fall 2026</p>
+    <p>My first hands-on builds at Duke. I soldered a circuit that switches LED lights behind a custom sign, and 3D-printed a mug with the Duke logo on the bottom. They taught me the basics of turning a design into a real, working object.</p>
+    <img src="mug.jpg" alt="3D-printed mug with the Duke logo on the bottom">
+  </div>
+
 </body>
 </html>
