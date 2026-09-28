@@ -5,82 +5,181 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jacob Baker-Spitzer</title>
 
-  <!-- Loads the "Inter" font from Google Fonts (free) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Two fonts from Google: "Cormorant Garamond" (elegant serif, for headings) and "Inter" (clean, for body text) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* COLORS: change these 4 lines to restyle the whole site */
+    /* COLORS: 4 lines control the whole look */
     :root {
-      --bg: #0f1115;        /* page background (near-black) */
-      --card: #181b22;      /* project box background */
-      --text: #e6e6e6;      /* main text color */
-      --accent: #4fd1c5;    /* highlight color (teal); try #60a5fa for blue or #f59e0b for orange */
+      --paper: #faf8f4;     /* off-white background (softer than pure white) */
+      --ink: #1c1c1c;       /* main text */
+      --muted: #8a8580;     /* gray for dates and small labels */
+      --line: #e6e1d9;      /* thin divider lines */
     }
 
-    /* The whole page */
+    /* Resets the browser's default spacing so we control it ourselves */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--paper);
+      color: var(--ink);
       font-family: 'Inter', Arial, sans-serif;
-      max-width: 760px;
-      margin: 60px auto;
-      padding: 0 20px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.7;
     }
 
-    /* Your name */
-    h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 4px; }
+    /* Keeps everything in a centered column with space around it */
+    .page { max-width: 880px; margin: 0 auto; padding: 96px 28px 80px; }
 
-    /* Section titles like "Projects" */
-    h2 { color: var(--accent); margin-top: 48px; }
+    /* ---------- TOP SECTION (name + photo) ---------- */
 
-    /* Links */
-    a { color: var(--accent); text-decoration: none; margin-right: 18px; font-weight: 600; }
-    a:hover { text-decoration: underline; }
+    /* "grid" puts the text and photo side by side: text gets 1.3 parts, photo gets 1 part */
+    .hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 64px; align-items: end; }
 
-    /* Each project box */
-    .project {
-      background: var(--card);
-      border-left: 4px solid var(--accent);
-      border-radius: 8px;
-      padding: 18px 22px;
-      margin-bottom: 20px;
+    .eyebrow { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+
+    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 64px; line-height: 1.02; letter-spacing: -0.01em; }
+    h1 em { font-style: italic; }   /* makes "Baker-Spitzer" italic */
+
+    .tagline { margin-top: 22px; color: #4a4744; max-width: 420px; }
+
+    .links { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 22px; }
+    .links a { color: var(--ink); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+    .links a:hover { color: var(--muted); border-color: var(--muted); }
+
+    .photo img { width: 100%; display: block; filter: grayscale(15%); }
+
+    /* ---------- SECTIONS (About, Activities) ---------- */
+
+    section { margin-top: 110px; display: grid; grid-template-columns: 200px 1fr; gap: 40px; }
+
+    h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 30px; line-height: 1.1; }
+
+    .about p + p { margin-top: 16px; }   /* space between About paragraphs */
+
+    /* Each activity row: name/details on the left, years on the right */
+    .item { display: flex; justify-content: space-between; gap: 24px; padding: 22px 0; border-top: 1px solid var(--line); }
+    .item:last-child { border-bottom: 1px solid var(--line); }
+    .item h3 { font-size: 16px; font-weight: 500; }
+    .item .role { color: var(--muted); font-size: 14px; }
+    .item p { margin-top: 6px; font-size: 15px; color: #4a4744; max-width: 460px; }
+    .years { color: var(--muted); font-size: 14px; white-space: nowrap; }
+
+    footer { margin-top: 110px; font-size: 13px; color: var(--muted); }
+
+    /* ---------- PHONES: stack everything in one column on small screens ---------- */
+    @media (max-width: 700px) {
+      .page { padding-top: 56px; }
+      .hero, section { grid-template-columns: 1fr; gap: 28px; }
+      .photo { order: -1; max-width: 260px; }   /* photo goes above the name on phones */
+      h1 { font-size: 46px; }
+      section { margin-top: 72px; }
+      .item { flex-direction: column; gap: 4px; }
     }
-    .project h3 { margin: 0 0 6px 0; }
-    .tags { color: #9aa0a6; font-size: 0.9rem; margin: 0 0 10px 0; }
-
-    /* Photos: never wider than the box */
-    .project img { width: 100%; max-width: 320px; border-radius: 6px; margin-top: 10px; }
   </style>
 </head>
 <body>
+  <div class="page">
 
-  <h1>Jacob Baker-Spitzer</h1>
-  <p>Duke Pratt engineering student interested in electrical and computer engineering, tech, and economics.</p>
+    <!-- TOP: name, one-liner, links, photo -->
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Electrical &amp; Computer Engineering · Duke University</p>
+        <h1>Jacob<br><em>Baker-Spitzer</em></h1>
+        <p class="tagline">Freshman at Duke's Pratt School of Engineering, interested in electrical and computer engineering, computing, and economics.</p>
+        <nav class="links">
+          <a href="https://www.linkedin.com/in/jacob-baker-spitzer-129729378/">LinkedIn</a>
+          <a href="resume.pdf">Resume</a>
+          <a href="https://github.com/jacobbakerspitzer">GitHub</a>
+          <a href="mailto:jacob.baker-spitzer@duke.edu">Email</a>
+        </nav>
+      </div>
+      <div class="photo">
+        <img src="jacob.jpg" alt="Photo of Jacob Baker-Spitzer">
+      </div>
+    </header>
 
-  <p>
-    <a href="https://github.com/jacobbakerspitzer">GitHub</a>
-    <a href="https://www.linkedin.com/in/jacob-baker-spitzer-129729378/">LinkedIn</a>
-    <a href="resume.pdf">Resume</a>
-    <a href="mailto:jacob.baker-spitzer@duke.edu">Email</a>
-  </p>
+    <!-- ABOUT -->
+    <section>
+      <h2>About</h2>
+      <div class="about">
+        <p>I grew up in New York City and I'm now a first-year engineering student at Duke, studying Electrical &amp; Computer Engineering with an interest in economics. I like understanding how things work, whether that's a circuit, a building, or a city.</p>
+        <p>Before Duke, I compiled a 1,000+ building dataset on a century of New York construction for an economics research paper, and shadowed a structural engineer at The LiRo Group. Right now I'm building my Python and C++ skills and looking for research, engineering projects, and internships.</p>
+      </div>
+    </section>
 
-  <h2>Projects</h2>
+    <!-- ACTIVITIES: copy one <div class="item"> block to add another -->
+    <section>
+      <h2>Activities</h2>
+      <div>
 
-  <!-- Project 1 -->
-  <div class="project">
-    <h3>Adaptive Fishing Game</h3>
-    <p class="tags">EGR 101 · Assistive technology · Fall 2026 – present</p>
-    <p>Standard game controllers don't work for a child with limited mobility, so our 5-person team is designing a fishing game he can play with just 2 switches. We're following the engineering design process, starting by interviewing him and his care team. So far we've defined the requirements and picked a design direction.</p>
+        <div class="item">
+          <div>
+            <h3>Riverdale Kenshikai Karate</h3>
+            <span class="role">Junior Black Belt &amp; Assistant Instructor</span>
+            <p>Training since age four. Earned my black belt after 600+ classes and have co-taught 50+ classes of 10–20 students.</p>
+          </div>
+          <span class="years">2013 – Present</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <h3>Westchester Youth Soccer League</h3>
+            <span class="role">Certified Referee</span>
+            <p>Officiated 180+ youth matches, moving up from assistant referee to center referee.</p>
+          </div>
+          <span class="years">2023 – Present</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <h3>Varsity Soccer, NEST+m</h3>
+            <span class="role">Two-Year Captain</span>
+            <p>Four-year varsity athlete. Helped lead the team to an NYC championship.</p>
+          </div>
+          <span class="years">2022 – 2026</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <h3>Varsity Tennis, NEST+m</h3>
+            <span class="role">Two-Year Captain</span>
+            <p>Four-year varsity athlete and two-time NYC championship finalist.</p>
+          </div>
+          <span class="years">2022 – 2026</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <h3>Catalyst, Duke University</h3>
+            <span class="role">New Member</span>
+            <p>Duke's pre-professional tech organization.</p>
+          </div>
+          <span class="years">2026 – Present</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <h3>Ignite, Duke University</h3>
+            <span class="role">Incoming Engineering Trainer</span>
+            <p>Will mentor Durham middle schoolers through hands-on light and energy engineering projects.</p>
+          </div>
+          <span class="years">Spring 2027</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <h3>More at NEST+m</h3>
+            <span class="role">Advanced Jazz Band · National Honor Society · Baseball Club Co-Founder</span>
+          </div>
+          <span class="years">2022 – 2026</span>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>© 2026 Jacob Baker-Spitzer</footer>
+
   </div>
-
-  <!-- Project 2 -->
-  <div class="project">
-    <h3>Hands-On Engineering Builds</h3>
-    <p class="tags">EGR 101 · Soldering · 3D printing · Fall 2026</p>
-    <p>My first hands-on builds at Duke. I soldered a circuit that switches LED lights behind a custom sign, and 3D-printed a mug with the Duke logo on the bottom. They taught me the basics of turning a design into a real, working object.</p>
-    <img src="mug.jpg" alt="3D-printed mug with the Duke logo on the bottom">
-  </div>
-
 </body>
 </html>
