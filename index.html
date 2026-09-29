@@ -5,12 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jacob Baker-Spitzer</title>
 <meta name="description" content="Jacob Baker-Spitzer. Electrical & Computer Engineering at Duke. New York to Durham.">
+<meta property="og:title" content="Jacob Baker-Spitzer">
+<meta property="og:description" content="Electrical & Computer Engineering at Duke. New York to Durham.">
+<meta name="theme-color" content="#08090B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308090B'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23F58426'/%3E%3C/svg%3E">
 
 <!-- FONTS: Anton (giant condensed headlines), Inter (body), JetBrains Mono (stats + metadata) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<script>document.documentElement.classList.add('js')</script>
 <style>
 /* =====================================================================
    0. DESIGN SYSTEM
@@ -19,7 +24,7 @@
 :root{
   --bg:#08090B; --bg-2:#0E1014;
   --ink:#F2EEE6; --mute:#8B8F97; --faint:#23272E; --line:#2E333B;
-  --blue:#006BB6; --blue-lit:#3E9BE0; --orange:#F58426;
+  --blue:#006BB6; --blue-lit:#3E9BE0; --orange:#F58426; --silver:#9aa0a8;
 
   --display:'Anton','Impact','Arial Narrow',sans-serif;
   --body:'Inter',system-ui,sans-serif;
@@ -32,22 +37,28 @@
   /* driven by scroll (JS): street → garden */
   --prog:0;      /* whole-page progress 0..1 */
   --floor:0;     /* parquet visibility */
-  --boost:0;     /* Garden Mode / Heat Check extra light */
+  --boost:0;     /* Garden Mode / Heat Check / Game 4 finale extra light */
+  --out:0;       /* lights lowering as the game ends */
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:clip}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:clip;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:clip;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0}
+img{max-width:100%}
+[id]{scroll-margin-top:70px}
 ::selection{background:var(--orange);color:var(--bg)}
 .mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 .o{color:var(--orange)} .b{color:var(--blue-lit)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.skip{position:fixed;left:16px;top:-60px;z-index:200;padding:10px 14px;background:var(--orange);color:var(--bg);font:12px var(--mono);letter-spacing:.14em}
+.skip:focus{top:16px}
 main,footer,header,.ticker{position:relative;z-index:1}
 
 /* ---------- ARENA: lights that come up as you go deeper ---------- */
 .lights{position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:calc(.25 + var(--prog) * .75 + var(--boost) * .6);
+  opacity:calc((.25 + var(--prog) * .75 + var(--boost) * .6) * (1 - var(--out) * .6));
   background:
     radial-gradient(38% 30% at calc(20% + var(--prog) * 30%) calc(10% - var(--prog) * 4%), rgba(0,107,182,calc(.10 + var(--prog)*.10)), transparent 70%),
     radial-gradient(30% 26% at calc(85% - var(--prog) * 20%) 6%, rgba(245,132,38,calc(.04 + var(--prog)*.08)), transparent 70%),
@@ -79,27 +90,29 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 /* =====================================================================
    1. CURSOR (dot + ring with context labels)
    ===================================================================== */
-.cursor,.ring{position:fixed;top:0;left:0;pointer-events:none;z-index:120;will-change:transform}
+.cursor,.ring{position:fixed;top:0;left:0;pointer-events:none;z-index:120;will-change:transform;opacity:0;transition:opacity .3s}
+.moved .cursor,.moved .ring{opacity:1}
 .cursor{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--ink)}
 .ring{width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:1px solid rgba(242,238,230,.3);display:grid;place-items:center;
-  transition:width .35s var(--court),height .35s var(--court),margin .35s var(--court),border-color .3s,background .3s}
-.ring b{font:500 9px var(--mono);letter-spacing:.14em;color:var(--bg);opacity:0;transition:opacity .2s}
+  transition:width .3s var(--court),height .3s var(--court),margin .3s var(--court),border-color .25s,background .25s}
+/* state is .lbl (not .label, which is the section-label style and was pushing the text off-center);
+   letter-spacing adds space after the last letter too, so the negative right margin cancels it */
+.ring b{display:block;font:500 9px/1 var(--mono);letter-spacing:.14em;margin-right:-.14em;color:var(--bg);opacity:0;transition:opacity .2s;white-space:nowrap}
 .ring.link{border-color:var(--blue-lit)}
 .ring.data{width:22px;height:22px;margin:-11px 0 0 -11px;border-color:var(--orange);background:rgba(245,132,38,.18)}
-.ring.label{width:58px;height:58px;margin:-29px 0 0 -29px;background:var(--orange);border-color:var(--orange)}
-.ring.label b{opacity:1}
-.ring.shoot{width:26px;height:26px;margin:-13px 0 0 -13px;border-color:var(--orange);border-style:dashed}
+.ring.lbl{width:58px;height:58px;margin:-29px 0 0 -29px;background:var(--orange);border-color:var(--orange)}
+.ring.lbl b{opacity:1}
 @media (pointer:fine){body,a,button{cursor:none}}
 @media (pointer:coarse){.cursor,.ring{display:none}}
 
 /* =====================================================================
-   2. NAV + SUBWAY LINE + SCORE BUG
+   2. NAV + SUBWAY LINE
    ===================================================================== */
 .nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;justify-content:space-between;align-items:center;padding:22px var(--pad);mix-blend-mode:difference}
 .logo{font-family:var(--display);font-size:22px;letter-spacing:.04em}
 .nav ul{list-style:none;display:flex;gap:30px}
 .nav li a{font-family:var(--mono);font-size:11px;letter-spacing:.16em;display:flex;align-items:center;gap:8px}
-.nav li a::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);transform:scale(0);transition:transform .35s var(--court)}
+.nav li a::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);transform:scale(0);transition:transform .3s var(--court)}
 .nav li a.active::before{transform:scale(1)}
 
 /* NYC: route-map scroll indicator */
@@ -113,66 +126,89 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 .stop.here{border-color:var(--orange);background:var(--orange);transform:scale(1.15)}
 .stop.here span,.subway:hover .stop span{opacity:1}
 
-/* BROADCAST: score bug */
-.bug{position:fixed;left:var(--pad);bottom:22px;z-index:55;width:128px;font:11px var(--mono);letter-spacing:.1em;background:rgba(8,9,11,.9);border:1px solid var(--line);
-  opacity:0;transform:translateY(12px);transition:opacity .4s,transform .5s var(--court);pointer-events:none}
-.bug.on{opacity:1;transform:none}
-.bug .r{display:flex;justify-content:space-between;padding:5px 9px;border-bottom:1px solid var(--faint)}
-.bug .r b{font-weight:500;display:inline-flex;align-items:center;gap:6px}
-.bug .r b::before{content:"";width:3px;height:11px;background:var(--blue-lit)}
-.bug .r:nth-child(2) b::before{background:var(--orange)}
-.bug .q{display:flex;justify-content:space-between;padding:5px 9px;color:var(--mute)}
-
 /* =====================================================================
-   3. HERO
+   3. HERO: GAME4_MEMORY
    ===================================================================== */
 .hero{position:relative;min-height:100vh;min-height:100svh;padding:0 var(--pad);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
-.court-wrap{position:absolute;width:150vmax;left:26%;top:-31%;transform:rotate(-12deg);perspective:1400px;pointer-events:none}
+.court-wrap{position:absolute;width:92vmax;left:20%;top:-12%;transform:rotate(-12deg);perspective:1400px;pointer-events:none}
 .court-hero{width:100%;display:block;will-change:transform;overflow:visible}
-.court-hero .ln{fill:none;stroke:rgba(242,238,230,.13);stroke-width:1;vector-effect:non-scaling-stroke}
+.court-hero .ln{fill:none;stroke:rgba(242,238,230,.13);stroke-width:1;vector-effect:non-scaling-stroke;transition:stroke .5s}
 .court-hero .ln.b{stroke:rgba(62,155,224,.45)} .court-hero .ln.o{stroke:rgba(245,132,38,.55)}
+.court-hero.lit .ln{stroke:rgba(242,238,230,.3)} .court-hero.lit .ln.o{stroke:rgba(245,132,38,.9)}
 .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.4s var(--court) forwards}
 .draw.d0{animation-delay:.05s} .draw.d1{animation-delay:.25s} .draw.d2{animation-delay:.45s}
 @keyframes draw{to{stroke-dashoffset:0}}
 .drawn{stroke-dasharray:none !important;stroke-dashoffset:0 !important;animation:none !important}
 .rim{fill:none;stroke:rgba(242,238,230,.35);stroke-width:1;vector-effect:non-scaling-stroke;transition:stroke .3s}
-.rim-hit{fill:transparent;pointer-events:all}
-.rim-hit:hover + .rim, .rim.flash{stroke:var(--orange)}
-.rim.flash{filter:drop-shadow(0 0 6px var(--orange))}
+.rim.flash{stroke:var(--orange)}
 .net path{fill:none;stroke:rgba(242,238,230,.25);stroke-width:1;vector-effect:non-scaling-stroke;transform-origin:250px 52px;transform-box:view-box}
 .net.swish path{animation:swish .6s var(--court)}
 @keyframes swish{40%{transform:scaleY(1.9) scaleX(.8)}}
-.idle{fill:var(--orange);filter:drop-shadow(0 0 12px rgba(245,132,38,.7));animation:idle 2.4s ease-in-out infinite}
-@keyframes idle{50%{opacity:.35}}
 
-/* shots overlay (screen-space, so it works with the tilted court) */
-.shots{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.shots .trail{fill:none;stroke-width:1;stroke-dasharray:3 5;opacity:.7}
-.shots .spot{transition:opacity 1.2s}
-.shots .spot.gone{opacity:0}
+/* background: the larger game, implied (positions illustrative, not tracked data) */
+.fd{fill:var(--ink);opacity:.07}
+.fd.m{fill:var(--orange);opacity:.09}
+.fd.wake{animation:wake 2.6s ease-in-out}
+@keyframes wake{45%{opacity:.5}}
+
+/* foreground: the closing sequence */
+#replay{opacity:.62;transition:opacity 1.1s ease}
+.hero.still #replay{opacity:1}
+#replay.fade{opacity:0 !important;transition:opacity .9s ease}
+.rp-trail{fill:none;stroke-width:1.2;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1}
+.rp-ball{fill:none;stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:0 1}
+.rp-mk{opacity:0;animation:mk .35s var(--snap) forwards}
+@keyframes mk{from{opacity:0}to{opacity:1}}
+.rp-txt{font-family:var(--mono);font-size:4.4px;letter-spacing:.6px;fill:#80858d}
+.rp-txt.o{fill:var(--orange)} .rp-txt.big{font-size:9px;letter-spacing:1px}
+.ringout{fill:none;stroke:var(--orange);stroke-width:1;vector-effect:non-scaling-stroke;transform-box:view-box;transform-origin:250px 52.5px}
 
 .corner{position:absolute;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--mute);line-height:1.8}
 .corner.tl{top:84px;left:var(--pad)} .corner.tr{top:84px;right:calc(var(--pad) + 26px);text-align:right}
 .vert{position:absolute;left:calc(var(--pad) * .35);bottom:34%;writing-mode:vertical-rl;transform:rotate(180deg);font:9.5px var(--mono);letter-spacing:.24em;color:#565b63}
 
-/* ARENA hardware: 24-second clock */
-.clock{display:inline-grid;justify-items:end;margin-top:18px;padding:6px 0 0;cursor:pointer}
-.clock .n{font:500 30px/1 var(--mono);color:var(--orange);letter-spacing:.02em;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(245,132,38,.45)}
-.clock .n.low{color:#ff5a3c}
-.clock .n.reset{color:var(--ink);font-size:14px;letter-spacing:.2em;padding:8px 0}
-.clock .t{font:9.5px var(--mono);letter-spacing:.2em;color:var(--mute);margin-top:4px}
-.clock:hover .t::after{content:" · HOLD"}
+/* BROADCAST: miniature Game 4 scorebug */
+.sbug{display:block;width:192px;margin:16px 0 0 auto;text-align:left;font:10px var(--mono);letter-spacing:.12em;background:rgba(8,9,11,.78);border:1px solid var(--line);color:var(--mute);pointer-events:auto;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.sb-hd,.sb-ft{display:flex;justify-content:space-between;padding:6px 10px;font-size:9px;letter-spacing:.16em}
+.sb-hd{border-bottom:1px solid var(--faint)}
+.sb-hd .fin{color:var(--ink)}
+.sb-row{position:relative;display:grid;grid-template-columns:12px 1fr auto;align-items:center;padding:4px 10px;border-bottom:1px solid var(--faint);overflow:hidden}
+.sb-row b{font-weight:500;color:var(--ink);display:inline-flex;align-items:center;gap:7px}
+.sb-row b::before{content:"";width:3px;height:11px;background:var(--silver)}
+.sb-row.nyk b::before{background:var(--orange)}
+.poss{width:0;height:0;border:4px solid transparent;border-left:5px solid var(--orange);opacity:0;transform:translateX(-3px);transition:opacity .25s,transform .3s var(--snap)}
+.sb-row.has .poss{opacity:1;transform:none}
+.sc{font:500 16px/1.2 var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;display:inline-block}
+.sc.flip{animation:flip .4s var(--snap)}
+@keyframes flip{0%{transform:translateY(-110%);opacity:0}100%{transform:none;opacity:1}}
+.sb-row::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--orange);transform:scaleX(0);transform-origin:left}
+.sb-row.sas::after{background:var(--silver)}
+.sb-row.sw::after{animation:sweep .6s var(--snap)}
+.sb-ft .clk{color:var(--ink);font-variant-numeric:tabular-nums}
+.sb-ft .clk.snap{animation:lock .3s var(--snap)}
+.sb-ev{border-top:1px solid var(--faint);padding:6px 10px;font-size:9px;letter-spacing:.14em;color:var(--orange);white-space:nowrap;overflow:hidden;min-height:26px}
+.sb-ev span{display:inline-block;animation:evin .4s var(--snap)}
+@keyframes evin{from{transform:translateY(80%);opacity:0}}
+.sb-def{display:flex;justify-content:space-between;padding:0 10px 7px;font-size:8.5px;letter-spacing:.16em;color:#5b6069}
+.sb-def b{font-weight:500;color:var(--mute)}
+.sb-def b.up{color:var(--orange)}
+.sbug:hover .sb-hd .pz::after{content:" · PAUSED"}
+.sb-24{color:var(--orange)}
 
-.hero-name{position:relative;font-family:var(--display);text-transform:uppercase;font-weight:400;line-height:.84;font-size:clamp(64px,15.2vw,248px);pointer-events:none}
-.hero-name span{display:block;overflow:hidden;white-space:nowrap}
-.hero-name span i{display:block;font-style:normal;transform:translateY(105%);animation:rise 1s var(--court) .35s forwards}
-.hero-name span:nth-child(2) i{animation-delay:.47s}
-.hero-name .outline{color:transparent;-webkit-text-stroke:1px var(--ink)}
+.hero-name{position:relative;font-family:var(--display);text-transform:uppercase;font-weight:400;line-height:.84;font-size:clamp(52px,12.6vw,236px);pointer-events:none}
+.hero-name span{display:block;overflow:hidden;white-space:nowrap;padding:0 .04em 0 0}
+.hero-name span i{display:inline-block;font-style:normal;transform:translateY(105%);animation:rise .9s var(--court) .3s forwards}
+.hero-name span:nth-child(2) i{animation-delay:.4s}
+.hero-name .outline{color:transparent;-webkit-text-stroke:1px var(--ink);padding-left:.01em}
 @keyframes rise{to{transform:none}}
 .hero-foot{position:relative;display:grid;grid-template-columns:1fr auto;align-items:end;gap:24px;padding:28px 0 34px;border-top:1px solid var(--faint);margin-top:26px}
 .hero-foot p{max-width:430px;color:#C9C5BD}
-.hero-foot .roles{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--mute);text-align:right;line-height:1.9}
-.hint{position:absolute;right:var(--pad);bottom:calc(100% + 14px);font:9.5px var(--mono);letter-spacing:.2em;color:#555a62}
+.rotation{text-align:right;font-family:var(--mono);line-height:1.9}
+.rotation .hd{font-size:10px;letter-spacing:.2em;color:var(--mute);display:inline-flex;align-items:center;gap:9px}
+.rotation .hd i{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2.4s ease-in-out infinite}
+.rotation .five{font-size:12.5px;letter-spacing:.14em;color:var(--ink)}
+.rotation .five em{font-style:normal;color:#4a4f57;padding:0 .3em}
+.rotation .rt{font-size:10.5px;letter-spacing:.2em;color:var(--mute)}
 
 /* =====================================================================
    4. RIBBON BOARD
@@ -197,8 +233,8 @@ section{position:relative;padding:150px var(--pad) 0}
 .label{display:flex;align-items:center;gap:14px;margin-bottom:54px}
 .label::before{content:"";width:34px;height:1px;background:var(--orange)}
 .big{font-family:var(--display);text-transform:uppercase;font-weight:400;line-height:.9;font-size:clamp(46px,8vw,128px)}
-.rv{opacity:0;transform:translateY(34px);transition:opacity 1s var(--court),transform 1s var(--court)}
-.rv.in{opacity:1;transform:none}
+.js .rv{opacity:0;transform:translateY(24px);transition:opacity .55s var(--court),transform .55s var(--court)}
+.js .rv.in{opacity:1;transform:none}
 
 /* =====================================================================
    6. SCOREBOARD (BROADCAST lock-in)
@@ -215,14 +251,14 @@ section{position:relative;padding:150px var(--pad) 0}
 .cell.sweep::after{animation:sweep .7s var(--snap)}
 .cell:nth-child(even).sweep::after{background:var(--blue-lit)}
 @keyframes sweep{0%{transform:scaleX(0)}60%{transform:scaleX(1);transform-origin:left}61%{transform-origin:right}100%{transform:scaleX(0);transform-origin:right}}
-.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:8px;animation:pulse 1.6s ease-in-out infinite}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:8px;vertical-align:middle;animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.25}}
 .final{position:absolute;right:12px;top:10px;font:9px var(--mono);letter-spacing:.14em;color:#4a4f57}
 
 /* =====================================================================
-   7. TUNNEL (ARENA transition)
+   7. TUNNEL (ARENA transition): BAM → OPEN → CONTENT
    ===================================================================== */
-.tunnel{position:relative;height:170vh;z-index:1}
+.tunnel{position:relative;height:148vh;z-index:1}
 .tunnel-in{position:sticky;top:0;height:100vh;overflow:hidden}
 .tunnel .glow{position:absolute;inset:0;background:radial-gradient(28% 40% at 50% 50%, rgba(242,238,230,calc(.05 + var(--close,0)*.07)), transparent 70%)}
 .tunnel .reveal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(calc(.8 + var(--open,0)*.35));font-family:var(--display);font-size:32vw;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(242,238,230,calc(.04 + var(--open,0)*.08));white-space:nowrap}
@@ -233,30 +269,36 @@ section{position:relative;padding:150px var(--pad) 0}
 .tunnel .meta span{display:block;color:var(--ink);font-size:13px;letter-spacing:.3em}
 
 /* =====================================================================
-   8. WORK: player-intro project blocks
+   8. WORK: player-intro project blocks (broadcast pacing)
    ===================================================================== */
 #work{overflow:hidden}
 .baseline{position:absolute;right:-6vw;top:20%;writing-mode:vertical-rl;font-family:var(--display);font-size:22vw;line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(242,238,230,.045);pointer-events:none;white-space:nowrap;user-select:none}
+.ghost{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+.ghost g{opacity:0;transition:opacity .9s ease}
+.ghost g.on{opacity:.11}
+.ghost path{fill:none;stroke:var(--ink);stroke-width:1;stroke-dasharray:1;stroke-dashoffset:1}
+.ghost text{font-family:var(--mono);font-size:9px;letter-spacing:1.6px;fill:var(--ink)}
+#work > *:not(.ghost):not(.baseline){position:relative;z-index:1}
 .proj{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:6vw;align-items:end;padding:64px 0;border-top:1px solid var(--faint)}
 .proj:nth-of-type(even){grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
 .proj:nth-of-type(even) .num{order:2;text-align:right}
-.num{font-family:var(--display);font-size:clamp(140px,24vw,360px);line-height:.78;color:transparent;-webkit-text-stroke:1px #3a3f47;transition:-webkit-text-stroke-color .5s,transform .8s var(--court),text-shadow .5s}
-.proj h3{position:relative;display:inline-block;font-family:var(--display);text-transform:uppercase;font-weight:400;font-size:clamp(34px,4.4vw,64px);line-height:.95;transition:transform .5s var(--court)}
-.proj h3::before{content:"";position:absolute;left:-10px;right:-10px;top:52%;height:.34em;background:var(--blue);z-index:-1;transform:scaleX(0);transform-origin:left;transition:transform .55s var(--snap)}
+.num{font-family:var(--display);font-size:clamp(140px,24vw,360px);line-height:.78;color:transparent;-webkit-text-stroke:1px #3a3f47;transition:-webkit-text-stroke-color .3s,transform .45s var(--court),text-shadow .4s}
+.proj h3{position:relative;display:inline-block;font-family:var(--display);text-transform:uppercase;font-weight:400;font-size:clamp(34px,4.4vw,64px);line-height:.95;transition:transform .35s var(--court)}
+.proj h3::before{content:"";position:absolute;left:-10px;right:-10px;top:52%;height:.34em;background:var(--blue);z-index:-1;transform:scaleX(0);transform-origin:left;transition:transform .4s var(--snap)}
 .proj p{color:#BDB9B1;max-width:520px;margin-top:18px}
 .lineup{display:grid;grid-template-columns:repeat(5,auto);justify-content:start;gap:6px 26px;margin-top:24px}
-.lineup div{opacity:.45;transform:translateY(0);transition:opacity .4s,transform .45s var(--snap)}
+.lineup div{opacity:.45;transition:opacity .25s}
 .lineup dt{font:9.5px var(--mono);letter-spacing:.18em;color:#5b6069}
 .lineup dd{font:11.5px var(--mono);letter-spacing:.08em;color:var(--ink)}
-.proj::after{content:"";position:absolute;left:0;top:-1px;height:1px;width:100%;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .9s var(--court)}
-.proj .arc{position:absolute;right:-60px;bottom:-60px;width:260px;opacity:.35;transition:opacity .5s,transform .9s var(--court)}
+.proj::after{content:"";position:absolute;left:0;top:-1px;height:1px;width:100%;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--court)}
+.proj .arc{position:absolute;right:-60px;bottom:-60px;width:260px;opacity:.35;transition:opacity .4s,transform .55s var(--court)}
 .proj .arc path{fill:none;stroke:var(--blue-lit);stroke-width:1;vector-effect:non-scaling-stroke}
 .proj:hover::after{transform:scaleX(1)}
 .proj:hover h3{transform:translateX(8px)}
 .proj:hover h3::before{transform:scaleX(1)}
-.proj:hover .lineup div{opacity:1;animation:intro .45s var(--snap) backwards}
-.proj:hover .lineup div:nth-child(2){animation-delay:.06s}.proj:hover .lineup div:nth-child(3){animation-delay:.12s}
-.proj:hover .lineup div:nth-child(4){animation-delay:.18s}.proj:hover .lineup div:nth-child(5){animation-delay:.24s}
+.proj:hover .lineup div{opacity:1;animation:intro .32s var(--snap) backwards}
+.proj:hover .lineup div:nth-child(2){animation-delay:.05s}.proj:hover .lineup div:nth-child(3){animation-delay:.1s}
+.proj:hover .lineup div:nth-child(4){animation-delay:.15s}.proj:hover .lineup div:nth-child(5){animation-delay:.2s}
 @keyframes intro{from{opacity:0;transform:translateY(8px)}}
 .proj:hover .num,body.heat .num,body.garden .num{-webkit-text-stroke-color:var(--orange);transform:translateY(-6px)}
 body.heat .num,body.garden .num{text-shadow:0 0 30px rgba(245,132,38,.25)}
@@ -265,9 +307,10 @@ body.heat .num,body.garden .num{text-shadow:0 0 30px rgba(245,132,38,.25)}
 
 .archive{display:flex;align-items:center;gap:18px;margin:90px 0 0;font:9.5px var(--mono);letter-spacing:.24em;color:#4d525a}
 .archive i{flex:1;height:1px;background:var(--faint)}
+.archive b{font-weight:400;color:#6b5a48}
 
 /* =====================================================================
-   9. SHOT CHART (DATA) + arc → court morph
+   9. SHOT CHART (DATA) + arc → court morph + the offense
    ===================================================================== */
 #chart{padding-bottom:40px}
 .grid-bg{position:absolute;inset:0;pointer-events:none;opacity:.22;z-index:0;overflow:hidden}
@@ -278,7 +321,7 @@ body.heat .num,body.garden .num{text-shadow:0 0 30px rgba(245,132,38,.25)}
 #chart > *:not(.grid-bg){position:relative;z-index:1}
 
 .chart-wrap{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:5vw;align-items:start}
-.morph{position:relative;height:230vh}
+.morph{position:relative;height:190vh}
 .morph-in{position:sticky;top:84px;height:calc(100vh - 100px);display:flex;flex-direction:column;justify-content:center}
 .filters{display:flex;flex-wrap:wrap;gap:4px 18px;margin-bottom:14px;opacity:var(--late,1);transition:opacity .3s}
 .filters button{font:10.5px var(--mono);letter-spacing:.16em;color:var(--mute);padding:6px 0;position:relative;cursor:pointer}
@@ -295,7 +338,9 @@ body.heat .chart .ln.arc3,body.garden .chart .ln.arc3,body.heat .chart .ln.key,b
 .chart::before{content:"";position:absolute;inset:0;background:radial-gradient(50% 50% at 50% 20%, rgba(245,132,38,.14), transparent 70%);opacity:0;transition:opacity .6s;pointer-events:none}
 body.heat .chart::before,body.garden .chart::before{opacity:1}
 #dots,#links{opacity:var(--late,1)}
-.chart.pre #dots{pointer-events:none}
+#links{transition:opacity .4s}
+.chart.running #links{opacity:0}
+.chart.pre #dots,.chart.running #dots{pointer-events:none}
 .links path{fill:none;stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:4 4;animation:flow 1.6s linear infinite;opacity:.55}
 @keyframes flow{to{stroke-dashoffset:-16}}
 .dot{cursor:pointer;outline:none;transition:opacity .4s}
@@ -308,8 +353,13 @@ body.heat .chart::before,body.garden .chart::before{opacity:1}
 .c-b circle.core{fill:var(--blue-lit)} .c-b circle.halo{stroke:var(--blue-lit)}
 .c-g circle.core{fill:#6b7078} .c-g circle.halo{stroke:#9aa0a8}
 body.heat .c-o circle.core,body.garden .c-o circle.core{filter:drop-shadow(0 0 8px var(--orange))}
-body.heat .dot circle.halo,body.garden .dot circle.halo{animation:ping 1.2s var(--court) infinite}
+body.garden .dot circle.halo{animation:ping 1.2s var(--court) infinite}
 @keyframes ping{0%{opacity:.9;r:8}100%{opacity:0;r:26}}
+.play path{fill:none;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke;opacity:.55;stroke-dasharray:1;stroke-dashoffset:1}
+.play .ball{fill:var(--ink)}
+.play .rip{fill:none;stroke:var(--orange);stroke-width:1;vector-effect:non-scaling-stroke;transform-box:view-box;transform-origin:250px 52.5px}
+.chart .rimc{fill:none;stroke:#4a4f57;stroke-width:1;vector-effect:non-scaling-stroke;opacity:var(--rest,1)}
+.chart .rimc.flash{stroke:var(--orange)}
 .tip{position:absolute;pointer-events:none;min-width:200px;max-width:250px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-left:2px solid var(--orange);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s var(--court);z-index:5}
 .tip.show{opacity:1;transform:none}
 .tip strong{display:block;font-weight:600;font-size:14px;margin:4px 0 2px}
@@ -318,7 +368,7 @@ body.heat .dot circle.halo,body.garden .dot circle.halo{animation:ping 1.2s var(
 .under{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px;opacity:var(--late,1)}
 .legend{display:flex;gap:18px;flex-wrap:wrap}
 .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
-.heatbtn{font:10px var(--mono);letter-spacing:.22em;color:#5b6069;cursor:pointer;transition:color .3s}
+.heatbtn{font:10px var(--mono);letter-spacing:.22em;color:#5b6069;cursor:pointer;transition:color .3s;padding:6px 0}
 .heatbtn:hover,body.heat .heatbtn{color:var(--orange)}
 
 .side{position:sticky;top:120px;align-self:start;opacity:var(--late,1)}
@@ -333,20 +383,34 @@ body.heat .dot circle.halo,body.garden .dot circle.halo{animation:ping 1.2s var(
 .wire path{fill:none;stroke:var(--orange);stroke-width:1;opacity:.6;stroke-dasharray:2 4}
 
 /* =====================================================================
-   10. ABOUT: roster + halftone plate
+   10. ABOUT: roster + halftone plate + court → grid → circuit schematic
    ===================================================================== */
 #about{padding-bottom:40px}
+.schem{position:absolute;left:0;top:60px;width:min(1100px,100%);height:auto;pointer-events:none;z-index:0;opacity:.07}
+.schem path,.schem circle,.schem rect{fill:none;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke}
+.schem .pad{fill:var(--ink);stroke:none}
+.schem g{opacity:0;animation:xf 42s ease-in-out infinite}
+.schem .s2{animation-delay:-28s} .schem .s3{animation-delay:-14s}
+@keyframes xf{0%{opacity:0}8%,30%{opacity:1}40%,100%{opacity:0}}
+#about:not(.vis) .schem g,#about:not(.vis) .plate::after{animation-play-state:paused}
+#about > *:not(.schem){position:relative;z-index:1}
 .about{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:6vw;align-items:start}
 .statement{font-family:var(--display);text-transform:uppercase;font-weight:400;font-size:clamp(38px,5.2vw,82px);line-height:.95}
 .statement em{font-style:normal;color:var(--orange)}
-.about-copy{margin-top:34px;max-width:560px;color:#C9C5BD}
-.about-copy p+p{margin-top:14px}
+.about-copy{margin-top:40px;max-width:590px;color:#C9C5BD;font-size:16.5px;line-height:1.7}
+.about-copy p+p{margin-top:18px}
+.about-copy p:first-child::first-line{color:var(--ink)}
+.about-copy .kick{display:block;margin-top:26px;font:10.5px var(--mono);letter-spacing:.2em;color:#5b6069}
 .card{border:1px solid var(--line);background:var(--bg-2)}
 .plate{position:relative;aspect-ratio:4/5;overflow:hidden;border-bottom:1px solid var(--line);background:#E9E4D9}
 .plate img,.plate canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .plate img{filter:grayscale(1) contrast(1.1) brightness(.85);opacity:0;transition:opacity .6s}
 .plate.fallback img{opacity:1}
 .plate:hover img{opacity:1}
+/* press scan: one slow pass of the printing head */
+.plate::after{content:"";position:absolute;left:0;right:0;top:-2px;height:2px;z-index:1;background:linear-gradient(90deg,transparent,rgba(245,132,38,.55),transparent);animation:scan 11s linear infinite;pointer-events:none}
+.plate:hover::after{opacity:0}
+@keyframes scan{0%{transform:translateY(0)}85%,100%{transform:translateY(calc(var(--ph,500px) + 4px))}}
 .reg{position:absolute;width:18px;height:18px;z-index:2}
 .reg::before,.reg::after{content:"";position:absolute;background:var(--orange)}
 .reg::before{left:50%;top:0;bottom:0;width:1px}.reg::after{top:50%;left:0;right:0;height:1px}
@@ -362,86 +426,161 @@ body.heat .dot circle.halo,body.garden .dot circle.halo{animation:ping 1.2s var(
 .sk{display:grid;grid-template-columns:200px 1fr 120px;gap:24px;align-items:center;padding:16px 0;border-bottom:1px solid var(--faint)}
 .sk .name{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em}
 .meter{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;height:6px}
-.meter i{background:var(--faint);transform-origin:left;transform:scaleX(0);transition:transform .5s var(--snap)}
+.meter i{background:var(--faint);transform-origin:left;transform:scaleX(0);transition:transform .45s var(--snap)}
 .skills.in .meter i{transform:none}
-.skills.in .sk:nth-child(2) .meter i{transition-delay:.08s}.skills.in .sk:nth-child(3) .meter i{transition-delay:.16s}
-.skills.in .sk:nth-child(4) .meter i{transition-delay:.24s}.skills.in .sk:nth-child(5) .meter i{transition-delay:.32s}.skills.in .sk:nth-child(6) .meter i{transition-delay:.4s}
+.skills.in .sk:nth-child(2) .meter i{transition-delay:.06s}.skills.in .sk:nth-child(3) .meter i{transition-delay:.12s}
+.skills.in .sk:nth-child(4) .meter i{transition-delay:.18s}.skills.in .sk:nth-child(5) .meter i{transition-delay:.24s}.skills.in .sk:nth-child(6) .meter i{transition-delay:.3s}
 .meter i.f{background:var(--ink)} .meter i.f.o{background:var(--orange)}
 .sk .tier{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--mute);text-align:right}
 
 /* =====================================================================
-   11. FOOTER: walking out of the Garden
+   11. THE BUILD: transaction wire → rafters
    ===================================================================== */
-footer{margin-top:170px;padding:120px var(--pad) 40px;overflow:hidden;border-top:1px solid var(--faint);min-height:92vh;display:flex;flex-direction:column;justify-content:space-between}
-.foot-ball{position:absolute;width:min(62vw,720px);aspect-ratio:1;right:calc(min(62vw,720px) * -0.36);bottom:calc(min(62vw,720px) * -0.6);pointer-events:none;z-index:0;
+#build{padding-top:170px;padding-bottom:40px}
+.term{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0 30px;min-height:clamp(300px,34vw,440px);display:flex;flex-direction:column}
+.term-hd{display:flex;justify-content:space-between;gap:16px;font:10px var(--mono);letter-spacing:.2em;color:#5b6069}
+.term-hd b{font-weight:400;color:var(--mute)}
+.tx{position:relative;flex:1;display:grid;grid-template-columns:auto 1fr;align-items:end;gap:10px 5vw;margin-top:26px;clip-path:inset(0 0 0 0);transition:clip-path .38s var(--snap)}
+.tx.out{clip-path:inset(0 100% 0 0)}
+.tx.pre{clip-path:inset(0 0 0 100%);transition:none}
+.tx-date{font-family:var(--display);font-size:clamp(72px,13vw,210px);line-height:.82;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.tx-body{padding-bottom:.4em}
+.tx-type{font:11px var(--mono);letter-spacing:.3em;color:var(--mute)}
+.tx-type.champ{color:var(--orange)}
+.tx-name{font-family:var(--display);text-transform:uppercase;font-size:clamp(28px,3.6vw,54px);line-height:1;margin-top:10px}
+.tx-sub{font:11px var(--mono);letter-spacing:.2em;color:var(--mute);margin-top:12px;min-height:1em}
+.term-bar{position:absolute;left:0;right:0;bottom:-1px;height:1px;background:transparent}
+.term-bar i{display:block;height:100%;background:var(--orange);transform-origin:left;transform:scaleX(0)}
+.term-bar i.run{transform:scaleX(1);transition:transform linear}
+.tx-list{list-style:none}
+/* rafters: three thin forms descending from the dark */
+.rafters{position:relative;display:flex;justify-content:center;align-items:flex-start;gap:clamp(22px,5vw,72px);margin-top:130px;height:clamp(280px,32vw,400px)}
+.rafters .ny{position:absolute;left:50%;top:-44px;transform:translateX(-50%);font:10px var(--mono);letter-spacing:.5em;color:#3f444c;opacity:0;transition:opacity 1.6s 1s}
+.bn{position:relative;width:clamp(52px,5.2vw,78px);height:100%;opacity:0;transform:translateY(-70px);transition:transform 2.4s var(--court),opacity 2.4s ease}
+.bn:nth-child(3){transition-delay:.3s}.bn:nth-child(4){transition-delay:.6s}
+.bn::before{content:"";position:absolute;left:50%;top:-140px;height:140px;width:1px;background:linear-gradient(transparent,#1d2127)}
+.bn div{position:absolute;inset:0;background:linear-gradient(#050607,#0d1014 40%,#14181e);clip-path:polygon(0 0,100% 0,100% 90%,50% 100%,0 90%);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:22%}
+.bn span{font:500 11px var(--mono);letter-spacing:.16em;margin-right:-.16em;color:#6b7078}
+.bn.now div::after{content:"";position:absolute;top:0;bottom:10%;right:0;width:1px;background:linear-gradient(transparent,rgba(245,132,38,.55))}
+.rafters.down .bn{opacity:1;transform:none}
+.rafters.down .ny{opacity:1}
+
+/* =====================================================================
+   12. FOOTER: walking out of the Garden
+   ===================================================================== */
+footer{margin-top:140px;padding:110px var(--pad) 34px;overflow:hidden;border-top:1px solid var(--faint);min-height:100vh;display:flex;flex-direction:column;justify-content:space-between}
+.foot-ball{position:absolute;width:min(62vw,720px);aspect-ratio:1;right:calc(min(62vw,720px) * -0.36);top:40px;pointer-events:none;z-index:0;opacity:.95;
   transform:translateX(calc((1 - var(--fb,0)) * 45%)) rotate(calc((1 - var(--fb,0)) * 160deg));will-change:transform}
 .foot-ball circle{fill:var(--orange)} .foot-ball path{fill:none;stroke:var(--bg);stroke-width:5}
 .foot-lines{position:absolute;inset:0;pointer-events:none;z-index:0;transform:translateX(calc((1 - var(--fb,0)) * -12%))}
 .foot-lines path{fill:none;stroke:rgba(62,155,224,.35);stroke-width:1;vector-effect:non-scaling-stroke}
 footer > div{position:relative;z-index:1}
-.garden{font-family:var(--display);text-transform:uppercase;font-weight:400;line-height:.86;font-size:clamp(58px,12.5vw,210px)}
-.contact{display:flex;flex-wrap:wrap;gap:0;margin-top:40px;border:1px solid var(--line);width:fit-content;transition:opacity .8s}
-.btn{position:relative;display:inline-flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px 24px;border-right:1px solid var(--line);overflow:hidden;isolation:isolate}
-.btn:last-child{border-right:0}
-.btn::before{content:"";position:absolute;inset:0;background:var(--orange);transform:translateX(-101%);transition:transform .45s var(--snap);z-index:-1}
-.btn:hover::before,.btn:focus-visible::before{transform:none}
-.btn:hover,.btn:focus-visible{color:var(--bg)}
-.fine{display:flex;justify-content:flex-start;column-gap:60px;align-items:center;flex-wrap:wrap;gap:12px;margin-top:80px}
+.garden{font-family:var(--display);text-transform:uppercase;font-weight:400;line-height:.86;font-size:clamp(58px,min(10.5vw,15vh),190px);margin-top:10px}
+/* contact rail: four arena exit gates */
+.rail{display:grid;grid-template-columns:repeat(4,1fr);margin-top:56px;border:1px solid var(--line);background:var(--bg)}
+.gate{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:clamp(170px,15vw,230px);padding:22px 24px;border-right:1px solid var(--line);overflow:hidden;isolation:isolate;transition:color .3s}
+.gate:last-child{border-right:0}
+.gate .k{font:10.5px var(--mono);letter-spacing:.24em;color:var(--mute);transition:color .3s}
+.gate .cta{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;font-family:var(--display);text-transform:uppercase;font-size:clamp(26px,2.9vw,44px);line-height:.95;transition:transform .35s var(--snap)}
+.gate .arr{font-family:var(--body);font-weight:400;font-size:.8em;line-height:1;transition:transform .4s var(--snap)}
+.gate .meta{font:10px var(--mono);letter-spacing:.12em;color:inherit;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .35s var(--snap);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:10px}
+.gate:hover .cta,.gate:focus-visible .cta{transform:translateX(6px)}
+.gate:hover .arr,.gate:focus-visible .arr{transform:rotate(45deg)}
+.gate:hover .meta,.gate:focus-visible .meta{opacity:.75;transform:none}
+.gate::before,.gate::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+/* EMAIL: orange sweep left → right */
+.g-mail::before{background:var(--orange);transform:translateX(-101%);transition:transform .45s var(--snap)}
+.g-mail:hover::before,.g-mail:focus-visible::before{transform:none}
+.g-mail:hover,.g-mail:focus-visible,.g-mail:hover .k,.g-mail:focus-visible .k{color:var(--bg)}
+/* LINKEDIN: blue sweep bottom → top */
+.g-li::before{background:var(--blue);transform:translateY(101%);transition:transform .45s var(--snap)}
+.g-li:hover::before,.g-li:focus-visible::before{transform:none}
+.g-li:hover .k,.g-li:focus-visible .k{color:var(--ink)}
+/* RESUME: thin lines snap around the border like a stat card */
+.g-cv::before{inset:10px;background:linear-gradient(var(--orange),var(--orange)) top left/100% 1px no-repeat,linear-gradient(var(--orange),var(--orange)) bottom right/100% 1px no-repeat;transform:scaleX(0);transition:transform .35s var(--snap)}
+.g-cv::after{inset:10px;background:linear-gradient(var(--orange),var(--orange)) top left/1px 100% no-repeat,linear-gradient(var(--orange),var(--orange)) bottom right/1px 100% no-repeat;transform:scaleY(0);transition:transform .35s var(--snap) .12s}
+.g-cv:hover::before,.g-cv:focus-visible::before{transform:none}
+.g-cv:hover::after,.g-cv:focus-visible::after{transform:none}
+.g-cv:hover .k,.g-cv:focus-visible .k{color:var(--orange)}
+/* GITHUB: a small code grid briefly appears */
+.g-gh::before{background-image:linear-gradient(rgba(62,155,224,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(62,155,224,.35) 1px,transparent 1px);background-size:14px 14px;opacity:0;transition:opacity .3s}
+.g-gh::after{background:radial-gradient(60% 80% at 100% 100%,rgba(62,155,224,.18),transparent 70%);opacity:0;transition:opacity .3s}
+.g-gh:hover::before,.g-gh:focus-visible::before{animation:grid 1.1s var(--snap) forwards}
+.g-gh:hover::after,.g-gh:focus-visible::after{opacity:1}
+.g-gh:hover .k,.g-gh:focus-visible .k{color:var(--blue-lit)}
+@keyframes grid{0%{opacity:0;background-position:0 -14px}35%{opacity:.9}100%{opacity:.25;background-position:0 0}}
+.fine{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px 40px;margin-top:48px}
 .egg{font:inherit;letter-spacing:inherit;color:inherit;cursor:pointer;padding:4px 2px}
-footer.end .contact,footer.end .foot-lines,footer.end .fine .dimmable{opacity:.28}
-.dimmable,.foot-lines{transition:opacity .8s}
+.egg:hover{color:var(--orange)}
+.coda{margin-top:18px;font:9px var(--mono);letter-spacing:.24em;color:#3a3f47}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);z-index:130;font:11px var(--mono);letter-spacing:.3em;color:var(--orange);padding:10px 16px;border:1px solid var(--orange);background:rgba(8,9,11,.92);opacity:0;transition:opacity .3s,transform .4s var(--snap);pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 body.garden .ticker-track span b{color:var(--orange)}
 
 /* =====================================================================
-   12. PHONES: translate interactions, don't delete them
+   13. PHONES: translate interactions, don't delete them
    ===================================================================== */
+@media (max-width:1100px){
+  .rail{grid-template-columns:repeat(2,1fr)}
+  .gate:nth-child(2){border-right:0}
+  .gate:nth-child(-n+2){border-bottom:1px solid var(--line)}
+}
 @media (max-width:820px){
   .nav ul{gap:18px}
-  .court-wrap{width:260vmax;left:-10%;top:-30%}
-  .corner.tr{right:calc(var(--pad) + 8px);top:84px}
+  .court-wrap{width:238vw;left:-70vw;top:14%}
+  #sbDate{display:none}
+  .corner.tl{top:78px}
+  .corner.tr{right:var(--pad);top:78px}
   .corner.tr .place{display:none}
+  .sbug{width:168px;margin-top:0}
   .vert{display:none}
   .hero-foot{grid-template-columns:1fr}
-  .hero-foot .roles{text-align:left}
+  .rotation{text-align:left}
   .subway{right:6px;height:40vh}
   .stop span{display:none}
-  .bug{display:none}
   .board{grid-template-columns:repeat(2,1fr)}
   .cell:nth-child(2n){border-right:none}
   .cell:nth-child(-n+4){border-bottom:1px solid var(--faint)}
-  .tunnel{height:140vh}
+  .tunnel{height:122vh}
   .proj,.proj:nth-of-type(even){grid-template-columns:1fr;gap:10px}
   .proj:nth-of-type(even) .num{order:0;text-align:left}
   .lineup{grid-template-columns:repeat(2,auto)}
   .lineup div{opacity:1}
   .chart-wrap,.about{grid-template-columns:1fr}
-  .morph{height:170vh}
+  .morph{height:145vh}
   .morph-in{top:70px;height:calc(100vh - 80px)}
   .chart{max-width:100%}
   .side{position:relative;top:0}
   .sk{grid-template-columns:1fr 90px;gap:10px 16px}
   .sk .meter{grid-column:1 / -1;grid-row:2}
   section{padding-top:110px}
-  .foot-ball{width:110vw;right:-45vw;bottom:-55vw}
-  .contact{width:100%}
-  .btn{flex:1 1 50%;border-bottom:1px solid var(--line)}
+  .tx{grid-template-columns:1fr;align-content:end}
+  .tx-body{padding-bottom:0}
+  .foot-ball{width:110vw;right:-50vw;top:30px}
+  .gate{min-height:150px;padding:18px}
+  .gate .meta{display:none}
+  .garden{font-size:clamp(58px,19vw,120px)}
+  .fine{flex-direction:column;align-items:flex-start}
 }
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
   .hero-name span i{transform:none}
-  .rv{opacity:1;transform:none}
+  .js .rv{opacity:1;transform:none}
   .draw{stroke-dashoffset:0}
   .meter i{transform:none}
   .lights-on{display:none}
   .tunnel{height:auto}.tunnel-in{position:relative;height:40vh}
   .morph{height:auto}.morph-in{position:relative;height:auto}
+  .rp-trail{stroke-dashoffset:0}.rp-mk{opacity:1}
+  .schem .s1{opacity:1}
+  .plate::after{display:none}
+  .bn{opacity:1;transform:none}
 }
 </style>
 </head>
 <body>
+<a class="skip" href="#work">Skip to work</a>
 
 <div class="lights-on" aria-hidden="true"></div>
 <div class="lights" aria-hidden="true"></div>
@@ -462,29 +601,23 @@ body.garden .ticker-track span b{color:var(--orange)}
 <!-- NYC: route-map progress line -->
 <nav class="subway" aria-label="Page progress">
   <div class="track"></div><div class="fill"></div>
-  <a class="stop" href="#top"     data-to="top"     style="top:0%"><span>NYC</span></a>
-  <a class="stop" href="#tunnel"  data-to="tunnel"  style="top:20%"><span>33 ST</span></a>
-  <a class="stop" href="#work"    data-to="work"    style="top:40%"><span>WORK</span></a>
-  <a class="stop" href="#chart"   data-to="chart"   style="top:60%"><span>COURT</span></a>
-  <a class="stop" href="#about"   data-to="about"   style="top:80%"><span>DUR</span></a>
-  <a class="stop" href="#contact" data-to="contact" style="top:100%"><span>MSG</span></a>
+  <a class="stop" href="#top"     style="top:0%"><span>NYC</span></a>
+  <a class="stop" href="#tunnel"  style="top:20%"><span>33 ST</span></a>
+  <a class="stop" href="#work"    style="top:40%"><span>WORK</span></a>
+  <a class="stop" href="#chart"   style="top:60%"><span>COURT</span></a>
+  <a class="stop" href="#about"   style="top:80%"><span>DUR</span></a>
+  <a class="stop" href="#build"   style="top:100%"><span>MSG</span></a>
 </nav>
 
-<!-- BROADCAST: score bug -->
-<div class="bug" aria-hidden="true">
-  <div class="r"><b id="bugA">NYC</b><span>33</span></div>
-  <div class="r"><b id="bugB">JBS</b><span>30</span></div>
-  <div class="q"><span>Q4</span><span id="bugClock">:24</span></div>
-</div>
-
 <!-- ================= HERO ================= -->
-<header class="hero" id="top" data-cur="shoot">
+<header class="hero" id="top">
   <div class="court-wrap" aria-hidden="true">
     <!-- Half court. Units = feet x10 (50ft wide). Three layers at different depths. -->
     <svg class="court-hero" id="courtHero" viewBox="-40 -40 580 560">
       <g id="L1">
         <path class="ln draw d0" pathLength="1" d="M0 0H500V470H0Z"/>
         <path class="ln draw d1" pathLength="1" d="M190 470A60 60 0 0 1 310 470"/>
+        <g id="field"></g>
       </g>
       <g id="L2">
         <path class="ln draw d1" pathLength="1" d="M170 0V190H330V0"/>
@@ -493,32 +626,41 @@ body.garden .ticker-track span b{color:var(--orange)}
       </g>
       <g id="L3">
         <path class="ln draw d2" pathLength="1" d="M210 52.5A40 40 0 0 0 290 52.5"/>
-        <path class="ln o draw d1" id="arc3" pathLength="1" d="M30 0V142A237.5 237.5 0 0 0 470 142V0"/>
+        <path class="ln o draw d1" pathLength="1" d="M30 0V142A237.5 237.5 0 0 0 470 142V0"/>
         <g class="net" id="net"><path d="M243 55 L246 66 M250 60 V70 M257 55 L254 66 M244 60 H256"/></g>
-        <circle class="rim-hit" cx="250" cy="52.5" r="24" style="pointer-events:all" data-cur="data"/>
         <circle class="rim" id="rim" cx="250" cy="52.5" r="7.5"/>
-        <circle class="idle" cx="250" cy="290" r="6"/>
+        <g id="replay"></g>
       </g>
     </svg>
   </div>
-  <svg class="shots" id="shots" aria-hidden="true"></svg>
 
   <div class="corner tl">COURT_01<br>40.7505° N<br>73.9934° W</div>
   <div class="corner tr">
     <span class="place">NYC → DUR<br>Season 2026–27<br></span>
-    <button class="clock" id="clock" aria-label="Shot clock" data-cur="data"><span class="n" id="clockN">24</span><span class="t">SHOT CLOCK</span></button>
+    <!-- GAME4_MEMORY: 2026 NBA Finals, Game 4, Madison Square Garden, June 10, 2026 -->
+    <div class="sbug" id="sbug" aria-label="2026 NBA Finals Game 4 at Madison Square Garden, June 10, 2026. Knicks 107, Spurs 106. Knicks lead series 3–1.">
+      <div class="sb-hd"><span class="pz" id="sbHd">GAME 4 · FINALS</span><span id="sbDate">06.10.26</span></div>
+      <div class="sb-row sas" id="rowSAS"><i class="poss"></i><b>SAS</b><span class="sc" id="scSAS">104</span></div>
+      <div class="sb-row nyk has" id="rowNYK"><i class="poss"></i><b>NYK</b><span class="sc" id="scNYK">100</span></div>
+      <div class="sb-ft"><span id="sbQ">Q4</span><span class="clk" id="sbClk">2:21</span></div>
+      <div class="sb-ev" id="sbEv"><span>MSG · 33RD / 7TH</span></div>
+      <div class="sb-def"><span id="sbDefL">MAX DEFICIT</span><b id="sbDef">−29</b></div>
+    </div>
   </div>
   <div class="vert" aria-hidden="true">VENUE_01 — 4 PENN PLAZA — 33RD / 7TH — GRID_033</div>
 
-  <h1 class="hero-name" aria-label="Jacob Baker-Spitzer">
+  <h1 class="hero-name" id="heroName" aria-label="Jacob Baker-Spitzer">
     <span><i>Jacob</i></span>
     <span><i class="outline">Baker-Spitzer</i></span>
   </h1>
 
   <div class="hero-foot">
-    <span class="hint" aria-hidden="true">CLICK THE COURT TO SHOOT</span>
     <p>Engineering student at Duke. Raised in New York. Learning to build things that work: circuits, code, and the occasional game.</p>
-    <div class="roles">ECE / Duke Pratt '30<br>Engineer in progress<br><span class="o">●</span> Open to research + internships</div>
+    <div class="rotation" aria-label="Current rotation: circuits, code, economics, design. New York to Durham.">
+      <div class="hd"><i></i>CURRENT ROTATION</div>
+      <div class="five">CIRCUITS<em>·</em>CODE<em>·</em>ECON<em>·</em>DESIGN</div>
+      <div class="rt">NYC → DUR · ECE / PRATT '30</div>
+    </div>
   </div>
 </header>
 
@@ -541,7 +683,7 @@ body.garden .ticker-track span b{color:var(--orange)}
     <div class="cell"><div class="mono">Matches reffed</div><div class="v" data-val="180+" data-num="180" data-suffix="+">180+</div></div>
     <div class="cell"><div class="mono">Data pts</div><div class="v" data-val="1,000+" data-num="1000" data-suffix="+" data-comma="1">1,000+</div></div>
     <div class="cell"><div class="mono">Base</div><div class="v" data-val="NYC">NYC<small>→ DUR</small></div></div>
-    <div class="cell"><div class="mono">Status</div><div class="v" style="font-size:clamp(22px,2.4vw,34px);margin-top:18px"><span class="live"></span>ACTIVE</div><span class="final">FINAL 10—19</span></div>
+    <div class="cell"><div class="mono">Rotation</div><div class="v" style="font-size:clamp(22px,2.4vw,34px);margin-top:18px"><span class="live"></span>BUILDING</div><span class="final">FINAL 10—19</span></div>
   </div>
 </section>
 
@@ -558,6 +700,7 @@ body.garden .ticker-track span b{color:var(--orange)}
 <!-- ================= WORK ================= -->
 <section id="work" style="padding-top:40px">
   <div class="baseline" aria-hidden="true">NEW YORK</div>
+  <svg class="ghost" id="ghost" aria-hidden="true"></svg>
   <div class="label mono rv">Work / Projects</div>
 
   <article class="proj rv" data-cur="label" data-label="READ">
@@ -594,7 +737,7 @@ body.garden .ticker-track span b{color:var(--orange)}
     <svg class="arc" viewBox="0 0 200 200" aria-hidden="true"><path d="M10 10V70A120 120 0 0 0 190 70V10"/></svg>
   </article>
 
-  <div class="archive" aria-hidden="true"><span>MSG_ARCHIVE_1970</span><i></i><span>MSG_ARCHIVE_1973</span></div>
+  <div class="archive" aria-hidden="true"><span>MSG_ARCHIVE</span><i></i><span><b>BANNERS_03</b> — 70 / 73 / 26</span></div>
 </section>
 
 <!-- ================= SHOT CHART ================= -->
@@ -621,10 +764,12 @@ body.garden .ticker-track span b{color:var(--orange)}
               <path class="ln rest" d="M190 190A60 60 0 0 0 310 190A60 60 0 0 0 190 190"/>
               <path class="ln rest" d="M220 40H280"/>
               <path class="ln rest" d="M210 52.5A40 40 0 0 0 290 52.5"/>
+              <circle class="rimc" id="chartRim" cx="250" cy="52.5" r="7.5"/>
               <path class="ln arc3" d="M30 0V142A237.5 237.5 0 0 0 470 142V0"/>
               <path class="ln rest" d="M190 470A60 60 0 0 1 310 470"/>
               <g class="links" id="links"></g>
               <g id="dots"></g>
+              <g class="play" id="play" aria-hidden="true"></g>
             </g>
           </svg>
           <div class="tip" id="tip"><div class="mono" id="tipTag"></div><strong id="tipTitle"></strong><span id="tipText"></span><div class="pos" id="tipPos"></div></div>
@@ -651,13 +796,38 @@ body.garden .ticker-track span b{color:var(--orange)}
 
 <!-- ================= ABOUT ================= -->
 <section id="about">
+  <!-- court → Manhattan grid → circuit board, crossfading very slowly -->
+  <svg class="schem" viewBox="0 0 1100 760" preserveAspectRatio="xMinYMin meet" aria-hidden="true">
+    <g class="s1">
+      <path d="M40 40H1060V720H40Z"/><path d="M380 40V380H720V40"/>
+      <circle cx="550" cy="380" r="120"/><path d="M110 40V250A480 480 0 0 0 990 250V40"/>
+      <circle cx="550" cy="115" r="16"/><path d="M490 90H610"/>
+    </g>
+    <g class="s2" transform="rotate(29 550 380)">
+      <path d="M-200 80H1300M-200 190H1300M-200 300H1300M-200 410H1300M-200 520H1300M-200 630H1300M-200 740H1300"/>
+      <path d="M40 -300V1100M300 -300V1100M560 -300V1100M820 -300V1100M1080 -300V1100"/>
+      <path d="M-100 700L1200 60" style="opacity:.6"/>
+    </g>
+    <g class="s3">
+      <path d="M40 80H300L360 140H620V300L680 360H1060"/>
+      <path d="M40 250H200L260 310V520H540L600 580H900"/>
+      <path d="M380 40V120M720 140V40M820 360V720M160 520V720M1000 360V180H900"/>
+      <circle cx="300" cy="80" r="7"/><circle cx="620" cy="300" r="7"/><circle cx="540" cy="520" r="7"/><circle cx="900" cy="580" r="7"/><circle cx="900" cy="180" r="7"/>
+      <rect x="430" y="400" width="80" height="50"/><rect x="760" y="440" width="120" height="60"/>
+      <circle class="pad" cx="380" cy="40" r="4"/><circle class="pad" cx="720" cy="40" r="4"/><circle class="pad" cx="160" cy="720" r="4"/><circle class="pad" cx="820" cy="720" r="4"/>
+    </g>
+  </svg>
+
   <div class="label mono rv">About / Roster</div>
   <div class="about">
     <div class="rv">
       <p class="statement">Raised on New York courts and grids. Now building <em>circuits and code</em> in Durham.</p>
       <div class="about-copy">
-        <p>I'm a first-year Electrical &amp; Computer Engineering student at Duke with an interest in economics. I like understanding how systems work, whether that's a circuit, a building, or a city.</p>
-        <p>Before Duke I compiled a 1,000+ building dataset on a century of New York construction for an economics research paper, and shadowed a structural engineer at The LiRo Group. Right now I'm building my Python and C++ skills and looking for research, engineering projects, and internships.</p>
+        <p>I'm a first-year Electrical &amp; Computer Engineering student at Duke, and economics is the other half of how I think. I grew up in New York City and went to NEST+m, which meant years of subways, gyms, and wondering how a city that big actually keeps running.</p>
+        <p>That question never really left. I like getting inside systems: circuits, software, buildings, markets, the grid under Manhattan. Before Duke I built a dataset of more than 1,000 New York buildings covering about a century of construction for an economics research paper, and I shadowed a structural engineer at The LiRo Group on real NYC projects. Both taught me that the interesting part is usually in how the pieces connect.</p>
+        <p>At Duke, my EGR 101 team is designing a fishing game for a young kid who needs to play with two switches instead of a normal controller. It's the first time I've designed something for one specific person, and it changes every decision. Along the way I'm getting better at Python, C++, CAD, circuits, and soldering.</p>
+        <p>Outside engineering, most of my life has been sports and music. I've refereed 180+ soccer matches, captained varsity soccer and tennis, earned a black belt in karate, and played baritone sax in the advanced jazz band. Every one of those has a rulebook. I like learning the rules well enough to play inside them, and eventually to build something new within them.</p>
+        <span class="kick">SYSTEMS_04 · COURT / GRID / CIRCUIT</span>
       </div>
     </div>
 
@@ -689,6 +859,37 @@ body.garden .ticker-track span b{color:var(--orange)}
     <div class="sk"><span class="name">C++</span><div class="meter"><i class="f"></i><i></i><i></i></div><span class="tier">LEARNING</span></div>
   </div>
 </section>
+
+<!-- ================= THE BUILD ================= -->
+<section id="build" aria-labelledby="buildLbl">
+  <div class="label mono rv" id="buildLbl">The Build</div>
+  <div class="term rv" id="term" aria-hidden="true">
+    <div class="term-hd"><span>TRANSACTION WIRE · NYK</span><b id="txIdx">01 / 06</b></div>
+    <div class="tx" id="tx">
+      <div class="tx-date" id="txDate">07.12.22</div>
+      <div class="tx-body">
+        <div class="tx-type" id="txType">SIGNED</div>
+        <div class="tx-name" id="txName">Jalen Brunson</div>
+        <div class="tx-sub" id="txSub"></div>
+      </div>
+    </div>
+    <div class="term-bar"><i id="txBar"></i></div>
+  </div>
+  <ol class="sr">
+    <li>July 12, 2022: signed Jalen Brunson.</li>
+    <li>February 9, 2023: acquired Josh Hart.</li>
+    <li>December 30, 2023: acquired OG Anunoby.</li>
+    <li>July 6, 2024: acquired Mikal Bridges.</li>
+    <li>October 2, 2024: acquired Karl-Anthony Towns.</li>
+    <li>June 13, 2026: champions. New York 94, San Antonio 90.</li>
+  </ol>
+  <div class="rafters" id="rafters" role="img" aria-label="Three banners: 1970, 1973, 2026">
+    <span class="ny">NY</span>
+    <div class="bn"><div><span>1970</span></div></div>
+    <div class="bn"><div><span>1973</span></div></div>
+    <div class="bn now"><div><span>2026</span></div></div>
+  </div>
+</section>
 </main>
 
 <!-- ================= FOOTER ================= -->
@@ -696,28 +897,44 @@ body.garden .ticker-track span b{color:var(--orange)}
   <svg class="foot-lines" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
     <path d="M-50 520 Q 500 300 1050 520"/><path d="M620 -20 V 640"/><path d="M-50 590 H 1050"/>
   </svg>
-
-  <div>
-    <div class="label mono">Contact</div>
-    <h2 class="garden">See you<br>at the <span class="o">Garden.</span></h2>
-    <div class="contact">
-      <a class="btn" href="mailto:jacob.baker-spitzer@duke.edu">Email ↗</a>
-      <a class="btn" href="https://www.linkedin.com/in/jacob-baker-spitzer-129729378/">LinkedIn ↗</a>
-      <a class="btn" href="resume.pdf">Resume ↗</a>
-      <a class="btn" href="https://github.com/jacobbakerspitzer">GitHub ↗</a>
-    </div>
-  </div>
-
-  <div class="fine mono">
-    <span>JBS · NYC / DUR · 2026 · <button class="egg" id="egg" aria-label="33">33</button> / 7TH</span>
-    <span class="dimmable">Built by hand in HTML, CSS + SVG</span>
-  </div>
-
   <svg class="foot-ball" viewBox="0 0 400 400" aria-hidden="true">
     <circle cx="200" cy="200" r="200"/>
     <path d="M200 0V400"/><path d="M0 200H400"/>
     <path d="M60 58C130 130 130 270 60 342"/><path d="M340 58C270 130 270 270 340 342"/>
   </svg>
+
+  <div>
+    <div class="label mono">Contact</div>
+    <h2 class="garden">See you<br>at the<br><span class="o">Garden.</span></h2>
+  </div>
+
+  <div>
+    <nav class="rail" aria-label="Contact">
+      <a class="gate g-mail" href="mailto:jacob.baker-spitzer@duke.edu" data-cur="label" data-label="MAIL">
+        <span class="k">01 · EMAIL</span>
+        <span><span class="cta">Say hello <span class="arr">↗</span></span><span class="meta">jacob.baker-spitzer@duke.edu</span></span>
+      </a>
+      <a class="gate g-li" href="https://www.linkedin.com/in/jacob-baker-spitzer-129729378/" target="_blank" rel="noopener" data-cur="label" data-label="OPEN">
+        <span class="k">02 · LINKEDIN</span>
+        <span><span class="cta">Connect <span class="arr">↗</span></span><span class="meta">in/jacob-baker-spitzer</span></span>
+      </a>
+      <a class="gate g-cv" href="resume.pdf" target="_blank" rel="noopener" data-cur="label" data-label="PDF">
+        <span class="k">03 · RESUME</span>
+        <span><span class="cta">View PDF <span class="arr">↗</span></span><span class="meta">ONE PAGE · UPDATED FALL 2026</span></span>
+      </a>
+      <a class="gate g-gh" href="https://github.com/jacobbakerspitzer" target="_blank" rel="noopener" data-cur="label" data-label="CODE">
+        <span class="k">04 · GITHUB</span>
+        <span><span class="cta">See code <span class="arr">↗</span></span><span class="meta">github.com/jacobbakerspitzer</span></span>
+      </a>
+    </nav>
+
+    <div class="fine mono">
+      <span>JBS · NYC / DUR · 2026 · <button class="egg" id="egg" aria-label="33">33</button> / 7TH</span>
+      <span>ARCHIVE · 70 · 73 · 26</span>
+      <span>Built by hand in HTML, CSS + SVG</span>
+    </div>
+    <div class="coda" aria-hidden="true">MSG_04 · 107 — 106 · 1.2 · 29↓ / 1↑</div>
+  </div>
 </footer>
 
 <div class="toast" id="toast" role="status"></div>
@@ -732,10 +949,22 @@ const fine = matchMedia('(pointer:fine)').matches;
 const root = document.documentElement, NS = 'http://www.w3.org/2000/svg';
 const clamp = (v,a=0,b=1) => Math.min(b, Math.max(a, v));
 const lerp = (a,b,t) => a + (b-a)*t;
+const rand = (a,b) => a + Math.random()*(b-a);
+const ease = t => t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function el(tag, attrs={}, parent){ const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; }
+function tween(dur, fn, alive=()=>true){ return new Promise(res => { const t0 = performance.now(); (function f(now){ if (!alive()) return res(false); const t = clamp((now-t0)/dur); fn(ease(t)); t < 1 ? requestAnimationFrame(f) : res(true); })(t0); }); }
+// draw an SVG path along its length (pathLength="1"), cheap: stroke-dashoffset only
+function drawPath(p, ms, delay=0){ return p.animate([{strokeDashoffset:1},{strokeDashoffset:0}], {duration:ms, delay, easing:'cubic-bezier(.3,.1,.2,1)', fill:'forwards'}); }
 function toast(msg, ms=1600){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), ms); }
+let boostHold = 0;
 function mode(cls, ms){ document.body.classList.add(cls); root.style.setProperty('--boost', cls==='garden'?1:.6); setTicker(cls==='garden'?2.6:1.8);
   clearTimeout(mode[cls]); mode[cls]=setTimeout(()=>{ document.body.classList.remove(cls); root.style.setProperty('--boost',0); setTicker(1); }, ms); }
 function setTicker(rate){ $('#ticker').getAnimations().forEach(a => a.playbackRate = rate); }
+// visibility of each section drives which idle system is allowed to move
+const vis = {};
+const vio = new IntersectionObserver(es => es.forEach(e => { vis[e.target.id] = e.isIntersecting; e.target.classList.toggle('vis', e.isIntersecting); }), {threshold:0});
+['top','work','chart','about','build'].forEach(id => vio.observe(document.getElementById(id)));
 
 /* =====================================================================
    DATA: activities (edit here; dots, list and filters all update)
@@ -752,7 +981,7 @@ const ACTS = [
   {t:"LiRo Group shadow",      tag:"Aug 2025",    d:"Shadowed a structural engineer on active NYC projects.",          yrs:"2025",   x:60, y:90,  c:"b", cat:["eng","nyc"]},
   {t:"Adaptive fishing game",  tag:"EGR 101",     d:"Five-person team designing a 2-switch game for a young client.",  yrs:"2026–",  x:300,y:110, c:"b", cat:["eng"]},
   {t:"Catalyst",               tag:"New member",  d:"Duke's pre-professional tech organization.",                      yrs:"2026–",  x:340,y:190, c:"b", cat:["eng"]},
-  {t:"Advanced Jazz Band",     tag:"NEST+m",      d:"Four years in the advanced ensemble.",                            yrs:"2022–26",x:160,y:390, c:"g", cat:["other","nyc"]},
+  {t:"Advanced Jazz Band",     tag:"NEST+m",      d:"Four years in the advanced ensemble. Baritone sax.",              yrs:"2022–26",x:160,y:390, c:"g", cat:["other","nyc"]},
   {t:"National Honor Society", tag:"NEST+m",      d:"Member.",                                                          yrs:"2022–26",x:230,y:260, c:"g", cat:["other","nyc"]},
   {t:"Baseball Club",          tag:"Co-founder",  d:"Co-founded the club at NEST+m.",                                  yrs:"2022–26",x:450,y:380, c:"g", cat:["other","sport","nyc"]}
 ];
@@ -761,39 +990,52 @@ const ACTS = [
    CURSOR (lagging ring = inertia; labels by context)
    ===================================================================== */
 const ring = $('.ring'), dotC = $('.cursor'), ringLabel = ring.querySelector('b');
-let mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my;
+let mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my, rx0 = 0;
 function setCursor(state, label=''){ ring.className = 'ring' + (state ? ' '+state : ''); ringLabel.textContent = label; }
 if (fine){
-  addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; dotC.style.transform=`translate(${mx}px,${my}px)`; }, {passive:true});
-  (function loop(){ rx += (mx-rx)*.18; ry += (my-ry)*.18; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(loop); })();
+  addEventListener('mousemove', e => { if (!rx0){ rx0 = 1; rx = e.clientX; ry = e.clientY; document.body.classList.add('moved'); } mx=e.clientX; my=e.clientY; dotC.style.transform=`translate(${mx}px,${my}px)`; }, {passive:true});
+  (function loop(){ rx += (mx-rx)*.2; ry += (my-ry)*.2; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(loop); })();
   document.addEventListener('mouseover', e => {
     const el = e.target.closest('[data-cur], a, button');
     if (!el) return setCursor('');
     const c = el.dataset.cur;
-    if (c === 'label') setCursor('label', el.dataset.label || 'VIEW');
-    else if (el.classList.contains('dot')) setCursor('label','OPEN');
+    if (c === 'label') setCursor('lbl', el.dataset.label || 'VIEW');
+    else if (el.classList.contains('dot')) setCursor('lbl','OPEN');
     else if (c === 'data') setCursor('data');
-    else if (c === 'shoot') setCursor('shoot');
     else setCursor('link');
   });
+  // the court says 33 once, briefly
+  let said33 = false;
+  $('#top').addEventListener('mouseenter', () => { if (said33) return; said33 = true; setCursor('lbl','33'); setTimeout(()=>setCursor(''), 650); });
 }
-// the court says 33 once, briefly
-let said33 = false;
-$('#top').addEventListener('mouseenter', () => { if (said33 || !fine) return; said33 = true; setCursor('label','33'); setTimeout(()=>setCursor('shoot'), 550); });
 
 // once each court line has drawn itself, drop the dash trick (keeps lines crisp while tilting)
 $$('.draw').forEach(p => p.addEventListener('animationend', () => p.classList.add('drawn'), {once:true}));
 
 /* =====================================================================
+   HERO NAME: fit BAKER-SPITZER to ~95% of the content width, never clipped
+   ===================================================================== */
+const heroName = $('#heroName');
+function fitName(){
+  heroName.style.fontSize = '100px';
+  const avail = heroName.clientWidth;
+  const w = Math.max(...[...heroName.querySelectorAll('i')].map(i => i.getBoundingClientRect().width)) + 6;   // + room for the outline stroke
+  heroName.style.fontSize = Math.min(avail * .95 / w * 100, 280).toFixed(1) + 'px';
+}
+fitName();
+if (document.fonts) document.fonts.ready.then(fitName);
+let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitName, 120); });
+
+/* =====================================================================
    HERO: layered 3D parallax with inertia
    ===================================================================== */
 const hero = $('#top'), courtSvg = $('#courtHero'), L1=$('#L1'), L2=$('#L2'), L3=$('#L3');
-let tx=0, ty=0, cx=0, cy=0, heroVisible = true;
+let tx=0, ty=0, cx=0, cy=0;
 if (!reduce){
   hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); tx = (e.clientX - r.left)/r.width - .5; ty = (e.clientY - r.top)/r.height - .5; });
   hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; });
   (function parallax(){
-    if (heroVisible){
+    if (vis.top !== false && Math.abs(cx-tx) + Math.abs(cy-ty) > .0005){
       cx = lerp(cx, tx, .06); cy = lerp(cy, ty, .06);   // settles instead of stopping
       courtSvg.style.transform = `rotateY(${cx*7}deg) rotateX(${-cy*6}deg)`;
       L1.setAttribute('transform', `translate(${cx*-8} ${cy*-6})`);
@@ -803,71 +1045,144 @@ if (!reduce){
     requestAnimationFrame(parallax);
   })();
 }
-new IntersectionObserver(([e]) => heroVisible = e.isIntersecting).observe(hero);
 
 /* =====================================================================
-   HERO: take shots (analytics style, drawn in screen space)
+   HERO: GAME4_MEMORY
+   2026 NBA Finals, Game 4, Madison Square Garden, June 10, 2026. NYK 107, SAS 106.
+   Clock times, scores and players are the real closing sequence.
+   Court positions are illustrative (no tracked shot-location data is used).
    ===================================================================== */
-const shots = $('#shots'), rim = $('#rim'), net = $('#net');
-let shotCount = 0;
-function rimPoint(){ const r = rim.getBoundingClientRect(), h = hero.getBoundingClientRect(); return {x: r.left + r.width/2 - h.left, y: r.top + r.height/2 - h.top}; }
-function sizeShots(){ const h = hero.getBoundingClientRect(); shots.setAttribute('viewBox', `0 0 ${h.width} ${h.height}`); }
-sizeShots(); addEventListener('resize', sizeShots);
+const RIM = [250, 52.5];
+const replay = $('#replay'), field = $('#field'), rimEl = $('#rim'), net = $('#net');
+const sb = {hd:$('#sbHd'), sas:$('#scSAS'), nyk:$('#scNYK'), rowS:$('#rowSAS'), rowN:$('#rowNYK'), clk:$('#sbClk'), q:$('#sbQ'), ev:$('#sbEv'), def:$('#sbDef'), defL:$('#sbDefL')};
 
-function shoot(x, y, made){
-  const color = made ? 'var(--orange)' : 'var(--blue-lit)';
-  const target = rimPoint();
-  if (!made){ target.x += (Math.random()<.5?-1:1)*(14+Math.random()*10); target.y -= 6; }
-  const spot = document.createElementNS(NS,'g'); spot.setAttribute('class','spot');
-  spot.innerHTML = `<circle cx="${x}" cy="${y}" r="4" fill="${color}"/><circle cx="${x}" cy="${y}" r="9" fill="none" stroke="${color}" stroke-width="1" opacity=".5"/>
-    <text x="${x+12}" y="${y+3}" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" fill="#6b7078">${made?'FG':'MISS'} ${String(++shotCount).padStart(2,'0')}</text>`;
-  shots.appendChild(spot);
-  if (reduce){ finish(); return; }
-  const midX = (x + target.x)/2, peak = Math.min(y, target.y) - Math.max(90, Math.abs(x-target.x)*.35);
-  const trail = document.createElementNS(NS,'path');
-  trail.setAttribute('d', `M${x} ${y} Q${midX} ${peak} ${target.x} ${target.y}`); trail.setAttribute('class','trail'); trail.setAttribute('stroke', color);
-  const ball = document.createElementNS(NS,'circle'); ball.setAttribute('r', 3.5); ball.setAttribute('fill', color);
-  shots.append(trail, ball);
-  const len = trail.getTotalLength(), start = performance.now(), dur = 650;
-  (function fly(now){
-    const t = clamp((now - start)/dur), e = t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
-    const p = trail.getPointAtLength(e*len); ball.setAttribute('cx', p.x); ball.setAttribute('cy', p.y);
-    if (t < 1) requestAnimationFrame(fly); else { ball.remove(); finish(); setTimeout(()=>trail.remove(), 500); }
-  })(start);
-  function finish(){
-    if (made){ rim.classList.add('flash'); net.classList.remove('swish'); void net.getBBox(); net.classList.add('swish'); setTimeout(()=>rim.classList.remove('flash'), 500); }
-    setTimeout(()=>{ spot.classList.add('gone'); setTimeout(()=>spot.remove(), 1300); }, 4500);
+// background: the larger game, implied. Seeded so it looks the same every visit.
+(function buildField(){
+  let s = 33; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 72; i++){
+    const d = 20 + Math.pow(r(), .8) * 270, a = r() * Math.PI;
+    const x = RIM[0] + Math.cos(a) * d * 1.05, y = RIM[1] + Math.sin(a) * d;
+    if (x < 8 || x > 492 || y > 440) continue;
+    el('circle', {cx:x.toFixed(1), cy:y.toFixed(1), r:2.2, class: r() < .12 ? 'fd m' : 'fd'}, field);
   }
+})();
+const fieldDots = [...field.children];
+function wakeOne(){
+  if (vis.top !== false && !document.hidden && !reduce){
+    const d = fieldDots[(Math.random()*fieldDots.length)|0];
+    d.classList.remove('wake'); void d.getBBox(); d.classList.add('wake');
+  }
+  setTimeout(wakeOne, rand(1600, 2900));
 }
-hero.addEventListener('click', e => {
-  if (e.target.closest('a, button')) return;
-  const h = hero.getBoundingClientRect();
-  shoot(e.clientX - h.left, e.clientY - h.top, Math.random() > .4);   // ~60% makes, the rest mark blue
-  startClock();
-});
-// the rim itself: one perfect make from the top of the key
-function perfectShot(){ const r = rimPoint(); shoot(r.x - 140 - Math.random()*80, r.y + 220 + Math.random()*60, true); }
-$('.rim-hit').addEventListener('click', e => { e.stopPropagation(); perfectShot(); });
 
-/* =====================================================================
-   ARENA: 24-second shot clock (starts on first interaction)
-   ===================================================================== */
-const clockN = $('#clockN'), bugClock = $('#bugClock');
-let clockVal = 24, clockTimer = null, clockHold = false;
-function renderClock(){ clockN.textContent = String(clockVal).padStart(2,'0'); clockN.className = 'n' + (clockVal <= 5 ? ' low' : ''); bugClock.textContent = ':' + String(clockVal).padStart(2,'0'); }
-function startClock(){
-  if (clockTimer) return;
-  clockTimer = setInterval(() => {
-    if (clockHold || document.hidden) return;
-    clockVal--;
-    if (clockVal < 0){ clockN.textContent = 'RESET'; clockN.className = 'n reset'; clockVal = 24; clockHold = true; setTimeout(()=>{ clockHold = false; renderClock(); }, 900); return; }
-    renderClock();
-  }, 1000);
+// scorebug helpers: vertical number flip, orange/silver sweep, clock snap, possession marker
+function setScore(team, v){
+  const n = team === 'sas' ? sb.sas : sb.nyk, row = team === 'sas' ? sb.rowS : sb.rowN;
+  if (n.textContent === String(v)) return;
+  n.textContent = v; n.classList.remove('flip'); void n.offsetWidth; n.classList.add('flip');
+  row.classList.remove('sw'); void row.offsetWidth; row.classList.add('sw');
 }
-['pointermove','scroll','touchstart','keydown'].forEach(ev => addEventListener(ev, startClock, {once:true, passive:true}));
-$('#clock').addEventListener('mouseenter', () => clockHold = true);
-$('#clock').addEventListener('mouseleave', () => clockHold = false);
-$('#clock').addEventListener('click', e => { e.stopPropagation(); clockVal = 24; renderClock(); perfectShot(); });
+function setClock(t){ sb.clk.textContent = t; sb.clk.classList.remove('snap'); void sb.clk.offsetWidth; sb.clk.classList.add('snap'); }
+function setEvent(t, cls=''){ sb.ev.innerHTML = `<span class="${cls}">${t}</span>`; }
+function setPoss(team){ sb.rowS.classList.toggle('has', team === 'sas'); sb.rowN.classList.toggle('has', team === 'nyk'); }
+function setDef(label, v, up){ sb.defL.textContent = label; sb.def.textContent = v; sb.def.classList.toggle('up', !!up); }
+
+// court drawing: a shot = marker + arc that traces toward the rim + a ball that rides it
+function curve([x0,y0], [x1,y1], bend=.22){
+  const mx = (x0+x1)/2, my = (y0+y1)/2, dx = x1-x0, dy = y1-y0;
+  return `M${x0} ${y0} Q${mx - dy*bend} ${my + dx*bend} ${x1} ${y1}`;
+}
+function label(x, y, txt, cls=''){ const t = el('text', {x, y, class:'rp-txt rp-mk '+cls}, replay); t.textContent = txt; return t; }
+function marker([x,y], made, color){
+  const g = el('g', {class:'rp-mk'}, replay);
+  if (made){ el('circle', {cx:x, cy:y, r:3.4, fill:color}, g); el('circle', {cx:x, cy:y, r:7, fill:'none', stroke:color, 'stroke-width':1, 'vector-effect':'non-scaling-stroke', opacity:.5}, g); }
+  else el('path', {d:`M${x-3.4} ${y-3.4}L${x+3.4} ${y+3.4}M${x+3.4} ${y-3.4}L${x-3.4} ${y+3.4}`, stroke:color, 'stroke-width':1.2, 'vector-effect':'non-scaling-stroke', fill:'none'}, g);
+  return g;
+}
+function shot(from, to, color, ms=900){
+  const d = curve(from, to);
+  const trail = el('path', {d, pathLength:1, class:'rp-trail', stroke:color, opacity:.8}, replay);
+  const ball = el('path', {d, pathLength:1, class:'rp-ball', stroke:color}, replay);
+  if (reduce){ trail.style.strokeDashoffset = 0; ball.remove(); return Promise.resolve(); }
+  drawPath(trail, ms);
+  const a = ball.animate([{strokeDashoffset:0},{strokeDashoffset:-1}], {duration:ms, easing:'cubic-bezier(.3,.1,.2,1)', fill:'forwards'});
+  return a.finished.then(() => ball.remove()).catch(()=>{});
+}
+function swish(){ rimEl.classList.add('flash'); net.classList.remove('swish'); void net.getBBox(); net.classList.add('swish'); setTimeout(()=>rimEl.classList.remove('flash'), 600); }
+
+// positions: illustrative only
+const P = {
+  three:[215,312],     // 2:21 Brunson 26-ft three (top of the key)
+  floater:[222,142],   // 1:10 Brunson lefty floater (lane)
+  ft:[250,190],        // 0:30 Castle free throws
+  drive:[292,112],     // 0:05.7 Fox drive → block
+  blk:[272,80],
+  deep:[335,318],      // 0:01.2 Brunson long three (miss)
+  tip:[262,64]         // Anunoby tip
+};
+const NYK = 'var(--orange)', SAS = 'var(--silver)';
+
+// The timeline (seconds). Scores and clock are the real sequence.
+const LOOP = 25;
+const TL = [
+  [0.0, () => { replay.classList.remove('fade'); replay.innerHTML = ''; setScore('sas',104); setScore('nyk',100); sb.hd.textContent = 'GAME 4 · FINALS'; sb.q.textContent = 'Q4';
+               setClock('2:21'); setPoss('nyk'); setEvent('POSSESSION <b class="sb-24">:24</b>'); setDef('MAX DEFICIT','−29'); }],
+  [1.4, () => { marker(P.three, true, NYK); shot(P.three, RIM, NYK, 1000).then(() => { swish(); setScore('nyk',103); setPoss('sas'); });
+               label(P.three[0]-30, P.three[1]+14, '2:21 · 26 FT'); setEvent('2:21 · BRUNSON 26-FT 3'); }],
+  [6.0, () => { setClock('1:10'); setPoss('nyk'); marker(P.floater, true, NYK); shot(P.floater, RIM, NYK, 800).then(() => { swish(); setScore('nyk',105); setPoss('sas'); setEvent('1ST LEAD · NYK 105–104', 'o'); });
+               label(P.floater[0]-44, P.floater[1]+2, '1:10 · FLT'); setEvent('1:10 · BRUNSON LEFTY FLOATER'); }],
+  [10.0, () => { setClock('0:30'); setEvent('0:30 · CASTLE 2 FT'); marker([P.ft[0]-6,P.ft[1]], true, SAS); label(P.ft[0]+18, P.ft[1]+2, '0:30 · FT'); }],
+  [10.6, () => { setScore('sas',105); }],
+  [11.3, () => { marker([P.ft[0]+6,P.ft[1]], true, SAS); setScore('sas',106); setPoss('nyk'); }],
+  [12.6, () => { setPoss('sas'); }],
+  [13.4, () => { setClock('0:05.7'); marker(P.drive, false, SAS);
+                const d = el('path', {d:curve(P.drive, P.blk, .1), pathLength:1, class:'rp-trail', stroke:SAS, opacity:.7}, replay); reduce ? d.style.strokeDashoffset = 0 : drawPath(d, 380);
+                setTimeout(() => { marker(P.blk, false, NYK); label(P.blk[0]+10, P.blk[1]+3, 'BLK · 0:05.7', 'o'); setPoss('nyk'); setEvent('0:05.7 · ANUNOBY BLOCKS FOX'); }, reduce ? 0 : 420); }],
+  [16.3, () => { setClock('0:01.2'); setEvent('0:01.2 · BRUNSON 3 · MISS'); marker(P.deep, false, 'var(--blue-lit)');
+                shot(P.deep, [RIM[0]+9, RIM[1]+4], 'var(--blue-lit)', 850); }],
+  [17.35, () => { marker(P.tip, true, NYK); shot(P.tip, RIM, NYK, 330).then(finale); }],
+  [19.2, () => { sb.hd.textContent = 'FINAL · NYK 3–1'; sb.q.textContent = 'FINAL'; setClock('0:00'); setPoss(''); setDef('FINAL','+1', true); setEvent('29 DOWN'); }],
+  [21.0, () => { setEvent('1 UP', 'o'); }],
+  [23.8, () => { if (!reduce) replay.classList.add('fade'); }]
+];
+function finale(){
+  // restraint: rim flash, one thin ring, score flip, a little more light, "1.2"
+  swish(); setScore('nyk',107); setEvent('0:01.2 · ANUNOBY TIP-IN', 'o');
+  label(RIM[0]+16, RIM[1]-8, '1.2', 'o big');
+  if (reduce) return;
+  const r = el('circle', {cx:RIM[0], cy:RIM[1], r:8, class:'ringout'}, replay);
+  r.animate([{transform:'scale(1)', opacity:.9},{transform:'scale(9)', opacity:0}], {duration:1500, easing:'cubic-bezier(.2,.7,.2,1)', fill:'forwards'});
+  courtSvg.classList.add('lit'); setTimeout(() => courtSvg.classList.remove('lit'), 1100);
+  if (!document.body.classList.contains('garden')){ root.style.setProperty('--boost', .17); setTimeout(() => { if (!document.body.classList.contains('garden') && !document.body.classList.contains('heat')) root.style.setProperty('--boost', 0); }, 1700); }
+}
+
+// scheduler: virtual time only advances while the hero is on screen and the scorebug isn't hovered
+let rt = 0, ri = 0, rLast = performance.now(), rPaused = false;
+function replayTick(now){
+  const dt = Math.min(.1, (now - rLast)/1000); rLast = now;
+  if (!rPaused && vis.top !== false && !document.hidden){
+    rt += dt;
+    while (ri < TL.length && rt >= TL[ri][0]) TL[ri++][1]();
+    if (rt >= LOOP){ rt = 0; ri = 0; }
+  }
+  requestAnimationFrame(replayTick);
+}
+if (reduce){
+  // show the final state, no loop
+  TL.slice(0, -1).forEach(([, fn]) => fn());
+  setTimeout(() => { setEvent('1 UP', 'o'); }, 0);
+} else {
+  requestAnimationFrame(replayTick);
+  setTimeout(wakeOne, 2400);
+}
+const sbug = $('#sbug');
+sbug.addEventListener('mouseenter', () => { rPaused = true; replay.getAnimations({subtree:true}).forEach(a => a.pause()); });
+sbug.addEventListener('mouseleave', () => { rPaused = false; replay.getAnimations({subtree:true}).forEach(a => a.play()); });
+
+// idle rule: after ~2s without the mouse moving, the replay comes up a little
+let stillT;
+function stir(){ hero.classList.remove('still'); clearTimeout(stillT); stillT = setTimeout(() => hero.classList.add('still'), 2000); }
+addEventListener('mousemove', stir, {passive:true}); addEventListener('touchstart', stir, {passive:true}); stir();
 
 /* =====================================================================
    BROADCAST: scoreboard lock-in (dashes → fast count → snap)
@@ -875,13 +1190,13 @@ $('#clock').addEventListener('click', e => { e.stopPropagation(); clockVal = 24;
 const boardCells = $$('#board .cell');
 function lockBoard(){
   boardCells.forEach((cell, i) => {
-    const v = cell.querySelector('.v'); if (!v.dataset.val) { setTimeout(()=>cell.classList.add('sweep'), i*140); return; }
+    const v = cell.querySelector('.v'); if (!v.dataset.val) { setTimeout(()=>cell.classList.add('sweep'), i*110); return; }
     const final = v.innerHTML; v.classList.add('dash'); v.textContent = '--';
     setTimeout(() => {
       v.classList.remove('dash'); cell.classList.remove('sweep'); void cell.offsetWidth; cell.classList.add('sweep');
       const n = +v.dataset.num;
       if (!n || reduce){ v.innerHTML = final; v.classList.add('lock'); return; }
-      const t0 = performance.now(), dur = 420;
+      const t0 = performance.now(), dur = 380;
       (function count(now){
         const t = clamp((now - t0)/dur), k = Math.round(n * (1 - Math.pow(1-t, 3)));
         let s = v.dataset.comma ? k.toLocaleString('en-US') : String(k);
@@ -889,24 +1204,55 @@ function lockBoard(){
         v.innerHTML = s + (v.dataset.suffix || '');
         if (t < 1) requestAnimationFrame(count); else v.innerHTML = final;
       })(t0);
-    }, 180 + i*140);
+    }, 150 + i*110);
   });
 }
 
 /* =====================================================================
-   SHOT CHART: dots, box score, filters, links, wire, heat check
+   WORK: ghost shots. One faint archival shot every 8–14s while visible.
    ===================================================================== */
-const dotsG = $('#dots'), linksG = $('#links'), box = $('#box'), tip = $('#tip'), svg = $('#shotSvg');
+const ghost = $('#ghost'), workSec = $('#work');
+const GHOST_TAGS = ['GAME_04 · 1.2', 'MSG · Q4', 'ARCHIVE_033', 'MSG_04 · 107—106', 'SEC 033 · 05.08.70'];
+let ghostBusy = false;
+function ghostShot(){
+  const W = workSec.clientWidth, H = workSec.clientHeight;
+  if (vis.work && !document.hidden && !ghostBusy && !document.body.classList.contains('heat') && W > 0){
+    ghostBusy = true;
+    ghost.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    // pick a spot in the viewport portion of the section
+    const r = workSec.getBoundingClientRect();
+    const top = clamp(-r.top, 0, H), bot = clamp(innerHeight - r.top, 0, H);
+    const x = rand(W*.12, W*.88), y = rand(top + (bot-top)*.25, top + (bot-top)*.8);
+    const dir = x > W/2 ? -1 : 1, hx = x + dir*rand(120, 220), hy = y - rand(90, 160);
+    const g = el('g', {}, ghost);
+    el('circle', {cx:x, cy:y, r:3, fill:'#F2EEE6'}, g);
+    el('circle', {cx:hx, cy:hy, r:6, fill:'none', stroke:'#F2EEE6', 'stroke-width':1}, g);
+    const p = el('path', {d:`M${x} ${y} Q${(x+hx)/2} ${Math.min(y,hy) - 70} ${hx} ${hy}`, pathLength:1}, g);
+    const t = el('text', {x: x + (dir > 0 ? -8 : 8), y: y + 20, 'text-anchor': dir > 0 ? 'start' : 'end'}, g);
+    t.textContent = GHOST_TAGS[(Math.random()*GHOST_TAGS.length)|0];
+    requestAnimationFrame(() => g.classList.add('on'));
+    drawPath(p, 1400, 250);
+    setTimeout(() => { g.classList.remove('on'); setTimeout(() => { g.remove(); ghostBusy = false; }, 1000); }, 3600);
+  }
+  setTimeout(ghostShot, rand(8000, 14000));
+}
+if (!reduce) setTimeout(ghostShot, 5000);
+
+/* =====================================================================
+   SHOT CHART: dots, box score, filters, links, wire
+   ===================================================================== */
+const dotsG = $('#dots'), linksG = $('#links'), box = $('#box'), tip = $('#tip'), svg = $('#shotSvg'), chartBox = $('#chartBox');
 const wire = $('#wire'), wirePath = $('#wirePath'), wrap = $('#chartWrap');
 const items = ACTS.map((a, i) => {
-  const g = document.createElementNS(NS,'g'); g.setAttribute('class','dot c-'+a.c); g.setAttribute('tabindex','0'); g.setAttribute('role','button');
-  g.setAttribute('aria-label', `${a.t}. ${a.tag}. ${a.d}`);
+  const g = el('g', {class:'dot c-'+a.c, tabindex:'0', role:'button', 'aria-label':`${a.t}. ${a.tag}. ${a.d}`}, dotsG);
   g.innerHTML = `<circle class="halo" cx="${a.x}" cy="${a.y}" r="10"/><circle class="core" cx="${a.x}" cy="${a.y}" r="6"/>`;
-  dotsG.appendChild(g);
   const row = document.createElement('div'); row.className = 'row';
   row.innerHTML = `<span>${a.t} <em>· ${a.tag}</em></span><span>${a.yrs}</span>`;
   box.appendChild(row);
+  const item = {a, g, row, dx:0, dy:0};
   const show = () => {
+    if (chartBox.classList.contains('running')) return;
+    stopIdle();
     $$('.dot.on,.row.on').forEach(el => el.classList.remove('on'));
     g.classList.add('on'); row.classList.add('on');
     $('#tipTag').textContent = a.tag; $('#tipTitle').textContent = a.t; $('#tipText').textContent = a.d;
@@ -915,15 +1261,16 @@ const items = ACTS.map((a, i) => {
     let left = (a.x+20)*s + 18, top = (a.y+20)*s - 20;
     if (left > r.width - 240) left = (a.x+20)*s - 250;
     if (top > r.height - 120) top = r.height - 130;
-    tip.style.left = left+'px'; tip.style.top = top+'px'; tip.classList.add('show');
+    tip.style.left = left+'px'; tip.style.top = Math.max(8, top)+'px'; tip.classList.add('show');
     drawWire(g, row);
   };
   const hide = () => { g.classList.remove('on'); row.classList.remove('on'); tip.classList.remove('show'); wirePath.setAttribute('d',''); };
   g.addEventListener('mouseenter', show); g.addEventListener('focus', show); g.addEventListener('click', show);
   g.addEventListener('mouseleave', hide); g.addEventListener('blur', hide);
   row.addEventListener('mouseenter', show); row.addEventListener('mouseleave', hide);
-  return {a, g, row};
+  return item;
 });
+function place(it, dx, dy){ it.dx = dx; it.dy = dy; it.g.setAttribute('transform', dx || dy ? `translate(${dx.toFixed(1)} ${dy.toFixed(1)})` : ''); }
 // DATA: faint line from the dot to its box-score row
 function drawWire(g, row){
   if (innerWidth < 820) return;
@@ -940,10 +1287,8 @@ function drawLinks(f){
   cats.forEach(c => {
     const pts = ACTS.filter(a => a.cat.includes(c)).sort((p,q) => p.x - q.x);
     if (pts.length < 2) return;
-    const p = document.createElementNS(NS,'path');
-    p.setAttribute('d', 'M' + pts.map(a => `${a.x} ${a.y}`).join(' L'));
-    p.setAttribute('stroke', CAT_COLOR[c]); p.style.opacity = f === 'all' ? .22 : .6;
-    linksG.appendChild(p);
+    const p = el('path', {d:'M' + pts.map(a => `${a.x} ${a.y}`).join(' L'), stroke:CAT_COLOR[c]}, linksG);
+    p.style.opacity = f === 'all' ? .22 : .6;
   });
 }
 $$('.filters button').forEach(b => b.addEventListener('click', () => {
@@ -953,13 +1298,87 @@ $$('.filters button').forEach(b => b.addEventListener('click', () => {
   drawLinks(f);
 }));
 drawLinks('all');
-$('#heat').addEventListener('click', () => { mode('heat', 3000); toast('HEAT CHECK', 1200); });
+
+/* ---------- the offense, at idle: one dot at a time, 30–80 units, then back ---------- */
+const SPOTS = [[170,190],[330,190],[30,30],[470,30],[80,220],[420,220],[250,300],[250,140]];   // elbows, corners, wings, top, short roll
+let idleRun = null, chartHover = false, late = 0;
+chartBox.addEventListener('mouseenter', () => chartHover = true);
+chartBox.addEventListener('mouseleave', () => chartHover = false);
+function stopIdle(){ if (idleRun){ idleRun.alive = false; place(idleRun.it, 0, 0); idleRun = null; } }
+async function idleMove(){
+  const ok = vis.chart && late >= .99 && !chartHover && !chartBox.classList.contains('running') && !document.hidden && !$('.dot.on');
+  if (ok && !idleRun){
+    const pool = items.filter(it => !it.g.classList.contains('dim'));
+    const it = pool[(Math.random()*pool.length)|0], {x, y} = it.a;
+    const [sx, sy] = SPOTS.map(s => [s, Math.hypot(s[0]-x, s[1]-y)]).filter(([, d]) => d > 20).sort((p,q) => p[1]-q[1])[0][0];
+    const d = Math.hypot(sx-x, sy-y), len = Math.min(d, rand(30, 80));
+    const tx = (sx-x)/d*len, ty = (sy-y)/d*len, bend = (Math.random() < .5 ? -1 : 1) * .35;
+    const cxp = tx/2 - ty*bend, cyp = ty/2 + tx*bend;           // curved cut, not a straight slide
+    const run = idleRun = {it, alive:true}, alive = () => run.alive;
+    const q = (t, a, c, b) => (1-t)*(1-t)*a + 2*(1-t)*t*c + t*t*b;
+    if (await tween(2600, t => place(it, q(t,0,cxp,tx), q(t,0,cyp,ty)), alive)){
+      await wait(800);
+      if (run.alive) await tween(2600, t => place(it, q(1-t,0,cxp,tx), q(1-t,0,cyp,ty)), alive);
+    }
+    if (run.alive){ place(it, 0, 0); idleRun = null; }
+  }
+  setTimeout(idleMove, rand(10000, 16000));
+}
+if (!reduce) setTimeout(idleMove, 6000);
+
+/* ---------- HEAT CHECK: run a set ---------- */
+const play = $('#play'), chartRim = $('#chartRim');
+const SET = [
+  {i:0, to:[318,184], c:[330,110], at:0},     // Duke ECE sets a screen at the right elbow
+  {i:3, to:[438,176], c:[322,226], at:260},   // Soccer curls off the screen to the wing
+  {i:9, to:[392,26],  c:[430,120], at:420},   // Catalyst cuts baseline
+  {i:6, to:[250,300], c:[168,236], at:120},   // Building dataset lifts to the top
+  {i:7, to:[96,214],  c:[30,150],  at:320}    // LiRo lifts out of the corner
+];
+async function runSet(){
+  if (chartBox.classList.contains('running')) return;
+  stopIdle(); tip.classList.remove('show'); wirePath.setAttribute('d','');
+  $$('.dot.on,.row.on').forEach(el => el.classList.remove('on'));
+  chartBox.classList.add('running'); mode('heat', 6200); toast('HEAT CHECK', 1200);
+  const q = (t, a, c, b) => (1-t)*(1-t)*a + 2*(1-t)*t*c + t*t*b;
+  const moves = SET.map(m => { const it = items[m.i], {x, y} = it.a;
+    return wait(m.at).then(() => tween(1500, t => place(it, q(t,0,m.c[0]-x,m.to[0]-x), q(t,0,m.c[1]-y,m.to[1]-y)))); });
+  await Promise.all(moves);
+  const pos = i => SET.find(m => m.i === i).to;
+  const ball = el('circle', {r:4, class:'ball'}, play);
+  async function pass(a, b, ms){
+    const p = el('path', {d:`M${a[0]} ${a[1]}L${b[0]} ${b[1]}`, pathLength:1}, play);
+    drawPath(p, ms);
+    await tween(ms, t => { ball.setAttribute('cx', lerp(a[0], b[0], t)); ball.setAttribute('cy', lerp(a[1], b[1], t)); });
+    p.animate([{opacity:.55},{opacity:0}], {duration:900, delay:300, fill:'forwards'});
+  }
+  await pass(pos(7), pos(6), 420);          // corner lift → top
+  await pass(pos(6), pos(3), 420);          // top → wing (soccer, off the curl)
+  await wait(180);
+  // the shot: orange dot, arc to the rim
+  const from = pos(3), mid = [(from[0]+RIM[0])/2 - 20, Math.min(from[1], RIM[1]) - 70];
+  const arc = el('path', {d:`M${from[0]} ${from[1]}Q${mid[0]} ${mid[1]} ${RIM[0]} ${RIM[1]}`, pathLength:1, style:'stroke:var(--orange);opacity:.8'}, play);
+  drawPath(arc, 650);
+  await tween(650, t => { const u = 1-t; ball.setAttribute('cx', u*u*from[0] + 2*u*t*mid[0] + t*t*RIM[0]); ball.setAttribute('cy', u*u*from[1] + 2*u*t*mid[1] + t*t*RIM[1]); });
+  ball.remove();
+  chartRim.classList.add('flash'); setTimeout(() => chartRim.classList.remove('flash'), 700);
+  [0, 160, 320].forEach(d => { const r = el('circle', {cx:RIM[0], cy:RIM[1], r:8, class:'rip'}, play);
+    r.animate([{transform:'scale(1)', opacity:.9},{transform:'scale(6)', opacity:0}], {duration:1100, delay:d, easing:'cubic-bezier(.2,.7,.2,1)', fill:'forwards'}); });
+  arc.animate([{opacity:.8},{opacity:0}], {duration:900, delay:400, fill:'forwards'});
+  await wait(700);
+  // everyone returns to the data
+  await Promise.all(SET.map(m => { const it = items[m.i], sx = it.dx, sy = it.dy; return tween(1400, t => place(it, sx*(1-t), sy*(1-t))); }));
+  await wait(500);
+  play.innerHTML = ''; chartBox.classList.remove('running');
+}
+$('#heat').addEventListener('click', () => { if (reduce){ mode('heat', 3000); toast('HEAT CHECK', 1200); } else runSet(); });
 
 /* =====================================================================
    ABOUT: halftone plate (canvas), falls back to the plain photo
    ===================================================================== */
 function halftone(){
   const img = $('#photo'), c = $('#ht'), plate = $('#plate');
+  plate.style.setProperty('--ph', plate.clientHeight + 'px');
   try{
     const W = plate.clientWidth, H = plate.clientHeight, dpr = Math.min(2, devicePixelRatio||1);
     c.width = W*dpr; c.height = H*dpr;
@@ -988,20 +1407,57 @@ if (photo.complete && photo.naturalWidth) halftone(); else photo.addEventListene
 photo.addEventListener('error', () => $('#plate').classList.add('fallback'));
 
 /* =====================================================================
+   THE BUILD: transaction wire, one move at a time → rafters
+   ===================================================================== */
+const TX = [
+  ['07.12.22','SIGNED','Jalen Brunson',''],
+  ['02.09.23','ACQUIRED','Josh Hart',''],
+  ['12.30.23','ACQUIRED','OG Anunoby',''],
+  ['07.06.24','ACQUIRED','Mikal Bridges',''],
+  ['10.02.24','ACQUIRED','Karl-Anthony Towns',''],
+  ['06.13.26','CHAMPIONS','New York','94–90 · NYK / SAS']
+];
+const txEl = $('#tx'), txBar = $('#txBar'), rafters = $('#rafters');
+let txI = 0, txTimer = null, txStarted = false;
+function renderTx(i){
+  const [d, type, name, sub] = TX[i];
+  $('#txDate').textContent = d; $('#txType').textContent = type; $('#txName').textContent = name; $('#txSub').textContent = sub;
+  $('#txType').classList.toggle('champ', type === 'CHAMPIONS');
+  $('#txIdx').textContent = `${String(i+1).padStart(2,'0')} / ${String(TX.length).padStart(2,'0')}`;
+  if (type === 'CHAMPIONS') setTimeout(() => rafters.classList.add('down'), 1400);
+}
+function runBar(ms){ txBar.classList.remove('run'); txBar.style.transitionDuration = '0ms'; void txBar.offsetWidth; txBar.style.transitionDuration = ms + 'ms'; txBar.classList.add('run'); }
+function nextTx(){
+  if (!vis.build || document.hidden){ txTimer = setTimeout(nextTx, 600); return; }
+  const hold = TX[txI][1] === 'CHAMPIONS' ? 7000 : 4600;
+  txEl.classList.add('out');
+  setTimeout(() => {
+    txI = (txI + 1) % TX.length; renderTx(txI);
+    txEl.classList.remove('out'); txEl.classList.add('pre'); void txEl.offsetWidth; txEl.classList.remove('pre');
+    runBar(TX[txI][1] === 'CHAMPIONS' ? 7000 : 4600);
+    txTimer = setTimeout(nextTx, TX[txI][1] === 'CHAMPIONS' ? 7000 : 4600);
+  }, reduce ? 0 : 400);
+}
+new IntersectionObserver(([e]) => {
+  if (e.isIntersecting && !txStarted){ txStarted = true; renderTx(0); runBar(4600); txTimer = setTimeout(nextTx, 4600); }
+}, {threshold:.4}).observe($('#term'));
+
+/* =====================================================================
    GARDEN MODE: click the tiny 33 three times
    ===================================================================== */
 let eggClicks = 0, eggTimer;
 $('#egg').addEventListener('click', () => {
   eggClicks++; clearTimeout(eggTimer); eggTimer = setTimeout(() => eggClicks = 0, 900);
-  if (eggClicks >= 3){ eggClicks = 0; toast('GARDEN MODE', 2000); mode('garden', 5000); lockBoard(); }
+  if (eggClicks >= 3){ eggClicks = 0; toast('GARDEN MODE', 2000); mode('garden', 5000); lockBoard(); rafters.classList.add('down'); }
 });
 
 /* =====================================================================
    SCROLL: one rAF-throttled handler drives every scroll-linked system
    ===================================================================== */
 const tunnel = $('#tunnel'), morph = $('#morph'), zoom = $('#zoom'), chartSec = $('#chart');
-const foot = $('#contact'), bug = $('.bug'), stops = $$('.stop');
-const secIds = ['top','tunnel','work','chart','about','contact'];
+const foot = $('#contact'), build = $('#build'), stops = $$('.stop'), morphIn = $('.morph-in'), side = $('#side');
+const secIds = ['top','tunnel','work','chart','about','build'];
+const navFor = {work:'work', chart:'work', about:'about', build:'contact'};
 let ticking = false;
 function onScroll(){
   ticking = false;
@@ -1017,35 +1473,33 @@ function onScroll(){
 
   // COURT: the three-point arc pulls back into the full shot chart
   const mr = morph.getBoundingClientRect(), mp = reduce ? 1 : clamp(-mr.top / (mr.height - vh + 100));
-  const z = clamp(mp / .62), e = 1 - Math.pow(1 - z, 3);
+  const z = clamp(mp / .6), e = 1 - Math.pow(1 - z, 3);
   zoom.style.transform = `scale(${lerp(5.2, 1, e)})`;
-  const chart = $('#chartBox');
-  chart.style.setProperty('--rest', clamp((z - .35)/.5).toFixed(3));
-  chart.style.setProperty('--hot', (1 - clamp((z - .55)/.4)).toFixed(3));
-  const late = clamp((z - .78)/.22).toFixed(3);
-  $('.morph-in').style.setProperty('--late', late); $('#side').style.setProperty('--late', late);
-  chart.classList.toggle('pre', late < .9); if (late < .9) tip.classList.remove('show');
+  chartBox.style.setProperty('--rest', clamp((z - .35)/.5).toFixed(3));
+  chartBox.style.setProperty('--hot', (1 - clamp((z - .55)/.4)).toFixed(3));
+  late = clamp((z - .78)/.22);
+  morphIn.style.setProperty('--late', late.toFixed(3)); side.style.setProperty('--late', late.toFixed(3));
+  chartBox.classList.toggle('pre', late < .9); if (late < .9){ tip.classList.remove('show'); stopIdle(); }
 
   // COURT: parquet shows up on the court sections
   const cr = chartSec.getBoundingClientRect();
   const onCourt = clamp(1 - Math.abs((cr.top + cr.height/2) - vh/2) / (cr.height/2 + vh*.3));
   root.style.setProperty('--floor', onCourt.toFixed(3));
 
-  // footer: ball rolls in, then everything dims at the very bottom
+  // the game is over: lights lower through THE BUILD, then the ball rolls in
+  const br = build.getBoundingClientRect();
+  root.style.setProperty('--out', clamp((vh - br.top) / (vh * 1.4)).toFixed(3));
   const fr = foot.getBoundingClientRect();
-  foot.style.setProperty('--fb', clamp((vh - fr.top) / (fr.height * .9)).toFixed(3));
-  foot.classList.toggle('end', docH - scrollY < 6);
+  foot.style.setProperty('--fb', clamp((vh - fr.top) / (vh * .9)).toFixed(3));
 
-  // NYC: subway stations + BROADCAST score bug
+  // NYC: subway stations + nav
   let here = 0;
   secIds.forEach((id, i) => { const el = document.getElementById(id); if (el.getBoundingClientRect().top < vh * .45) here = i; });
   stops.forEach((s, i) => { s.classList.toggle('here', i === here); s.classList.toggle('past', i < here); });
-  bug.classList.toggle('on', here === 2 || here === 4);
-  $('#bugA').textContent = 'NYC'; $('#bugB').textContent = here >= 4 ? 'DUR' : 'JBS';
-  $$('.nav li a').forEach(l => l.classList.toggle('active', l.dataset.sec === secIds[here] || (secIds[here]==='chart' && l.dataset.sec==='work')));
+  $$('.nav li a').forEach(l => l.classList.toggle('active', l.dataset.sec === navFor[secIds[here]]));
 }
 addEventListener('scroll', () => { if (!ticking){ ticking = true; requestAnimationFrame(onScroll); } }, {passive:true});
-addEventListener('resize', onScroll);
+addEventListener('resize', () => { onScroll(); const p = $('#plate'); p.style.setProperty('--ph', p.clientHeight + 'px'); });
 onScroll();
 
 /* reveal on scroll + scoreboard lock-in + pause the ribbon when off-screen */
@@ -1053,7 +1507,7 @@ const io = new IntersectionObserver(es => es.forEach(e => {
   if (!e.isIntersecting) return;
   e.target.classList.add('in'); io.unobserve(e.target);
   if (e.target.id === 'board') lockBoard();
-}), {threshold:.2});
+}), {threshold:.15});
 $$('.rv, .skills').forEach(el => io.observe(el));
 new IntersectionObserver(([e]) => $('#ticker').style.animationPlayState = e.isIntersecting ? '' : 'paused').observe($('.ticker'));
 </script>
