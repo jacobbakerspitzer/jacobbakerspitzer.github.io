@@ -24,7 +24,7 @@
    ===================================================================== */
 :root{
   --bg:#08090B; --bg-2:#0E1014;
-  --ink:#F2EEE6; --mute:#8B8F97; --dim:#5b6069; --faint:#23272E; --line:#2E333B;
+  --ink:#F2EEE6; --mute:#A2A6AE; --dim:#858a93; --faint:#23272E; --line:#2E333B;
   --blue:#006BB6; --blue-lit:#3E9BE0; --orange:#F58426; --silver:#9aa0a8;
 
   --display:'Anton','Impact','Arial Narrow',sans-serif;
@@ -92,8 +92,10 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 .ring.data{width:22px;height:22px;margin:-11px 0 0 -11px;border-color:var(--orange);background:rgba(245,132,38,.18)}
 .ring.lbl{width:58px;height:58px;margin:-29px 0 0 -29px;background:var(--orange);border-color:var(--orange)}
 .ring.lbl b{opacity:1}
-@media (pointer:fine){body,a,button{cursor:none}}
-@media (pointer:coarse){.cursor,.ring{display:none}}
+/* custom cursor only once its JS is running (html.cc); otherwise the native cursor stays */
+.cursor,.ring{display:none}
+.cc .cursor{display:block}.cc .ring{display:grid}
+@media (pointer:fine){.cc body,.cc a,.cc button{cursor:none}}
 
 /* =====================================================================
    2. NAV + SUBWAY LINE
@@ -106,6 +108,7 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 .nav li a.active::before{transform:scale(1)}
 .nav li a.rs{border-bottom:1px solid currentColor;padding-bottom:5px}
 .nav li a.rs::before{display:none}
+.nav .sm{display:none}
 
 .subway{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:55;height:min(300px,44vh);width:14px}
 .subway .track,.subway .fill{position:absolute;left:6px;top:0;width:2px;border-radius:2px}
@@ -192,6 +195,12 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 .hero-foot .id{font:500 11.5px/1.6 var(--mono);letter-spacing:.12em;color:var(--ink);text-transform:uppercase;margin-bottom:10px}
 .hero-foot .id em{font-style:normal;color:var(--orange)}
 .hero-foot p{max-width:500px;color:#C9C5BD;font-size:16.5px}
+.acts{display:flex;flex-wrap:wrap;gap:12px 30px;margin-top:18px}
+.act{font:500 11.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);padding:8px 0 7px;border-bottom:1px solid var(--line);transition:color .25s,border-color .25s}
+.act span{display:inline-block;margin-left:6px;color:var(--orange);transition:transform .3s var(--snap)}
+.act:hover,.act:focus-visible{color:var(--orange);border-color:var(--orange)}
+.act[href="#work"]:hover span{transform:translateY(3px)}
+.act[href$=".pdf"]:hover span{transform:translate(2px,-2px)}
 .rotation{text-align:right;font-family:var(--mono);line-height:1.9}
 .rotation .hd{font-size:10px;letter-spacing:.16em;color:var(--mute);display:inline-flex;align-items:center;gap:9px}
 .rotation .hd i{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2.4s ease-in-out infinite}
@@ -294,11 +303,49 @@ section{position:relative;padding:var(--sec) var(--gut) 0;overflow-x:clip}
 @keyframes intro{from{opacity:.3;transform:translateY(6px)}}
 .proj:hover .num,body.heat .num,body.garden .num{-webkit-text-stroke-color:var(--orange);transform:translateY(-4px)}
 .proj:hover .arc{opacity:.8;transform:rotate(-10deg)}
+.proj{cursor:pointer}
+.proj > .num{grid-row:1;grid-column:1}
+.proj > .pbody{grid-row:1;grid-column:2}
+.proj:nth-of-type(even) > .num{grid-column:2}
+.proj:nth-of-type(even) > .pbody{grid-column:1}
+.proj > .detail{grid-row:2}
+.pact{display:flex;align-items:center;flex-wrap:wrap;gap:10px 20px;margin-top:18px}
+.more{display:inline-flex;align-items:center;gap:12px;font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);padding:10px 14px;border:1px solid var(--line);cursor:pointer;transition:border-color .25s,color .25s,background .25s}
+.more .pm{display:inline-block;width:10px;text-align:center;color:var(--orange);transition:transform .3s var(--snap)}
+.more:hover,.proj:hover .more{border-color:var(--orange)}
+.proj.open .more .pm{transform:rotate(45deg)}
+.proj.open .arc{opacity:0}
+.pact .note{font-size:10px;color:var(--mute)}
+.detail{grid-column:1 / -1;display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--court)}
+.proj.open .detail{grid-template-rows:1fr}
+.d-clip{overflow:hidden;min-height:0}
+.d-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px 5vw;margin-top:26px;padding:24px 0 4px;border-top:1px dashed var(--line);cursor:auto}
+.dh{font-size:10px;color:var(--orange);margin-bottom:14px}
+.stages{list-style:none;display:grid;gap:0}
+.stages li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--faint);color:var(--mute)}
+.stages b{font:500 11px/1 var(--mono);color:var(--dim)}
+.stages span{font-size:15px}
+.stages em{font:normal 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.stages li.done{color:var(--ink)} .stages li.done b{color:var(--orange)} .stages li.done em{color:var(--mute)}
+.reqs,.steps{margin:0;padding:0 0 0 18px;color:#D2CEC6;font-size:15px;line-height:1.55}
+.reqs li+li,.steps li+li{margin-top:8px}
+.reqs li::marker{color:var(--orange)}
+.steps li::marker{font-family:var(--mono);color:var(--orange);font-size:12px}
+.dnote{margin-top:16px;font:11px/1.6 var(--mono);letter-spacing:.04em;color:var(--mute)}
+.flow{width:100%;max-width:440px;height:auto;display:block}
+.flow rect{fill:rgba(8,9,11,.6);stroke:var(--line);stroke-width:1}
+.flow rect.end{stroke:var(--blue-lit)}
+.flow path{fill:none;stroke:var(--orange);stroke-width:1}
+.flow text{font:500 9.5px var(--mono);letter-spacing:.8px;fill:var(--ink);text-anchor:middle}
+.schema{width:100%;border-collapse:collapse;font-size:14.5px}
+.schema th{font:10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-align:left;font-weight:400;padding:0 0 8px;border-bottom:1px solid var(--line)}
+.schema td{padding:10px 0;border-bottom:1px solid var(--faint);color:#D2CEC6;vertical-align:top}
+.schema td:first-child{font-family:var(--mono);font-size:12.5px;color:var(--ink);padding-right:18px;white-space:nowrap}
 
 /* experience strip: compact, three rows */
 .exp{margin-top:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.exp-hd{display:flex;justify-content:space-between;padding:14px 0 10px}
-.xrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr) minmax(0,.9fr);gap:24px;align-items:baseline;padding:14px 0;border-top:1px solid var(--faint);transition:padding-left .3s var(--court)}
+.exp-hd{display:flex;justify-content:space-between;padding:14px 0 10px;color:var(--ink)}
+.xrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,.8fr);gap:24px;align-items:baseline;padding:16px 0;border-top:1px solid var(--faint);transition:padding-left .3s var(--court)}
 .xrow b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(20px,1.7vw,26px);line-height:1.1}
 .xrow span{color:#C9C5BD}
 .xrow em{font:normal 11px/1.5 var(--mono);letter-spacing:.12em;color:var(--mute);text-align:right;text-transform:uppercase}
@@ -321,14 +368,15 @@ section{position:relative;padding:var(--sec) var(--gut) 0;overflow-x:clip}
 .chart-hd{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:8px}
 .chart-hd p{max-width:380px;color:#C9C5BD;font-size:15px}
 .chart-wrap{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:5vw;align-items:start}
-.morph{position:relative;height:125vh}
-.morph-in{position:sticky;top:72px;height:calc(100vh - 84px);display:flex;flex-direction:column;justify-content:center}
+.morph{position:relative}
+.morph-in{position:relative;display:flex;flex-direction:column}
 .filters{display:flex;flex-wrap:wrap;gap:4px 18px;margin-bottom:12px;opacity:var(--late,1);transition:opacity .3s}
 .filters button{font:10.5px/1 var(--mono);letter-spacing:.14em;color:var(--mute);padding:8px 0;position:relative;cursor:pointer}
 .filters button::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--snap)}
 .filters button[aria-pressed="true"]{color:var(--ink)}
 .filters button[aria-pressed="true"]::after{transform:scaleX(1)}
-.chart{position:relative;border:1px solid var(--line);background:rgba(8,9,11,.55);width:100%;max-width:calc((100vh - 220px) * 1.06);overflow:hidden}
+.chart{position:relative;border:1px solid var(--line);background:rgba(8,9,11,.55);width:100%;max-width:calc((100vh - 180px) * 1.06);overflow:hidden}
+#chart:not(.vis) .links path{animation-play-state:paused}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
 #zoom{transform-box:view-box;transform-origin:250px 290px;will-change:transform}
 .chart .ln{fill:none;stroke:#3a3f47;stroke-width:1;vector-effect:non-scaling-stroke;transition:stroke .5s}
@@ -370,7 +418,7 @@ body.garden .dot circle.halo{animation:ping 1.2s var(--court) infinite}
 .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:0}
 .heatbtn{font:10.5px/1 var(--mono);letter-spacing:.18em;color:var(--mute);cursor:pointer;transition:color .3s,border-color .3s;padding:9px 12px;border:1px solid var(--line)}
 .heatbtn:hover,body.heat .heatbtn{color:var(--orange);border-color:var(--orange)}
-.side{position:sticky;top:110px;align-self:start;opacity:var(--late,1)}
+.side{align-self:start;opacity:var(--late,1);margin-top:46px}
 .box{font-family:var(--mono);font-size:12.5px}
 .box .hd,.box .row{display:grid;grid-template-columns:1fr auto;gap:16px;padding:11px 0;border-bottom:1px solid var(--faint)}
 .box .hd{color:var(--mute);letter-spacing:.12em;font-size:10.5px}
@@ -419,18 +467,15 @@ body.garden .dot circle.halo{animation:ping 1.2s var(--court) infinite}
 .card dl div{display:grid;grid-template-columns:100px 1fr;gap:12px;padding:11px 18px;border-bottom:1px solid var(--faint)}
 .card dl div:last-child{border-bottom:none}
 .card dt{color:var(--mute);letter-spacing:.12em;font-size:10.5px;padding-top:1px}
-/* skills by category */
-.skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 36px;margin-top:44px;border-top:1px solid var(--line)}
-.skc > .mono{padding:14px 0 6px;color:var(--orange);font-size:10.5px}
-.sk{display:grid;grid-template-columns:minmax(0,1fr) 54px 76px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--faint)}
-.sk .name{font-size:14.5px;color:var(--ink)}
-.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;height:5px}
-.meter i{background:var(--faint);transform-origin:left;transform:scaleX(0);transition:transform .45s var(--snap)}
-.skills.in .meter i{transform:none}
-.skills.in .skc:nth-child(2) .meter i{transition-delay:.1s}.skills.in .skc:nth-child(3) .meter i{transition-delay:.2s}
-.meter i.f{background:var(--ink)} .meter i.f.o{background:var(--orange)}
-.sk .tier{font:10px/1 var(--mono);letter-spacing:.12em;color:var(--mute);text-align:right}
-.skills-key{margin-top:12px;font-size:10px;color:#4a4f57}
+/* skills: categories + honest context tags (no proficiency meters) */
+.skills{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;margin-top:40px;border-top:1px solid var(--line)}
+.skc > .mono{padding:14px 0 6px;color:var(--ink);font-size:10.5px}
+.sk{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--faint);font-size:15px}
+.sk em,.skills-key i{font:normal 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:5px 7px 4px;border:1px solid currentColor;border-radius:2px;white-space:nowrap}
+.t-a{color:var(--ink)} .t-b{color:var(--blue-lit)} .t-c{color:var(--mute)} .t-l{color:var(--dim);border-style:dashed !important}
+.skills-key{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:10px;color:var(--mute)}
+.skills-key span{display:inline-flex;align-items:center;gap:8px}
+.skills-key i{display:inline-block;width:10px;height:10px;padding:0}
 
 /* =====================================================================
    11. FOOTER: the Garden. One compact ending: contact first, lore around it.
@@ -450,16 +495,17 @@ footer .gnum{left:-4vw;bottom:-14%}
 footer.down .bn{transform:none}
 .fwrap{position:relative;z-index:1}
 .garden{font-family:var(--display);text-transform:uppercase;font-weight:400;line-height:.88;font-size:clamp(56px,min(9.5vw,15vh),168px)}
-/* THE BUILD, compressed to one ribbon line */
-.bwire{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:stretch;height:58px;margin-top:40px;border:1px solid var(--line);border-bottom:0;background:var(--bg);font:11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+/* THE BUILD: one complete transaction at a time, crisp wipe */
+.bwire{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:stretch;height:58px;margin-top:40px;border:1px solid var(--line);border-bottom:0;background:var(--bg);font:11.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
 .bwire .tag{display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--line);color:var(--orange);white-space:nowrap}
-.bwire .win{position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-.bwire .trk{display:inline-flex;align-items:center;height:100%;white-space:nowrap;animation:tick 48s linear infinite}
-.bwire:hover .trk{animation-play-state:paused}
-.bwire .trk > span{padding:0 18px;color:var(--mute)}
-.bwire .trk > span b{font-weight:500;color:var(--ink);margin-right:10px;font-variant-numeric:tabular-nums}
-.bwire .trk > span.ch{color:var(--orange)}
-.bwire .trk > i{font-style:normal;color:#3a3f47}
+.bwire .win{position:relative;overflow:hidden;display:flex;align-items:center;padding:0 22px}
+.bwire .tx{display:flex;align-items:baseline;gap:16px;white-space:nowrap;clip-path:inset(0 0 0 0);transition:clip-path .32s var(--snap),opacity .32s}
+.bwire .tx.out{clip-path:inset(0 100% 0 0)}
+.bwire .tx.pre{clip-path:inset(0 0 0 100%);transition:none}
+.bwire .tx b{font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.bwire .tx span{color:var(--mute)}
+.bwire .tx.ch span{color:var(--orange)}
+.bwire .idx{display:flex;align-items:center;padding:0 18px;border-left:1px solid var(--line);color:var(--mute);font-variant-numeric:tabular-nums}
 /* contact rail: the strongest element at the bottom */
 .rail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);background:var(--bg)}
 .gate{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:26px;min-height:clamp(150px,13vw,196px);padding:20px 22px;border-right:1px solid var(--line);overflow:hidden;isolation:isolate;transition:color .3s}
@@ -509,7 +555,7 @@ body.garden .ticker-track span b{color:var(--orange)}
   .rail{grid-template-columns:repeat(2,minmax(0,1fr))}
   .gate:nth-child(2){border-right:0}
   .gate:nth-child(-n+2){border-bottom:1px solid var(--line)}
-  .skills{grid-template-columns:1fr 1fr}
+  .skills{grid-template-columns:1fr 1fr;gap:0 28px}
   .lineup{grid-template-columns:repeat(3,auto)}
 }
 @media (max-width:820px){
@@ -528,7 +574,7 @@ body.garden .ticker-track span b{color:var(--orange)}
   .cell:nth-child(3n){border-right:1px solid var(--faint)}
   .cell:nth-child(2n){border-right:none}
   .cell:nth-child(-n+4){border-bottom:1px solid var(--faint)}
-  .tunnel{height:46vh}
+  .tunnel{height:38vh}
   .cell{padding:16px 14px 18px}
   .cell .v small{white-space:normal;line-height:1.35;font-size:10px}
   .cell .v.t{font-size:clamp(19px,5.4vw,24px)}
@@ -540,12 +586,8 @@ body.garden .ticker-track span b{color:var(--orange)}
   .xrow em{text-align:left}
   .chart-hd{flex-direction:column;align-items:start}
   .chart-wrap,.about{grid-template-columns:1fr}
-  .morph{height:115vh}
-  .morph-in{top:64px;height:calc(100vh - 72px)}
   .chart{max-width:100%}
   .side{position:relative;top:0}
-  .skills{grid-template-columns:1fr}
-  .card{max-width:440px}
   .banners{display:none}
   .foot-ball{width:62vw;right:-30vw;top:-40px}
   .gate .cta{font-size:22px}
@@ -553,21 +595,52 @@ body.garden .ticker-track span b{color:var(--orange)}
   .gate{min-height:136px;padding:16px}
   .gate .meta{display:none}
   .garden{font-size:clamp(52px,16vw,110px)}
-  /* the wire cycles one move at a time on phones */
-  .bwire{grid-template-columns:1fr;grid-template-rows:30px 50px;height:auto}
-  .bwire .tag{border-right:0;border-bottom:1px solid var(--line)}
-  .bwire .win{-webkit-mask-image:none;mask-image:none}
-  .bwire .trk{display:block;animation:none;position:relative}
-  .bwire .trk > i,.bwire .trk > span[aria-hidden]{display:none}
-  .bwire .trk > span{position:absolute;inset:0;display:flex;align-items:center;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s var(--snap)}
-  .bwire .trk > span.on{opacity:1;transform:none}
   .fine{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:820px){
+  :root{--sec:52px}
+  /* hero: identity first, Game 4 underneath it */
+  .hero{min-height:0;justify-content:flex-start;padding-top:92px;padding-bottom:6px}
+  .corner.tl{display:none}
+  .corner.tr{position:relative;top:auto;right:auto;order:3;align-self:flex-end;margin:4px 0 18px}
+  .sbug{width:150px;opacity:.7}
+  .hero-foot{padding:18px 0 10px;margin-top:16px}
+  .rotation{display:none}
+  .snap-sec{padding-top:28px}
+  .label{margin-bottom:22px}
+  .proj,.proj:nth-of-type(even){grid-template-columns:1fr;padding:26px 0}
+  .proj > .num,.proj > .pbody,.proj:nth-of-type(even) > .num,.proj:nth-of-type(even) > .pbody,.proj > .detail{grid-column:1;grid-row:auto}
+  .num{font-size:64px;line-height:.8;margin-bottom:-2px}
+  .d-in{grid-template-columns:1fr;gap:22px;padding-top:18px;margin-top:18px}
+  .pstat{margin-top:14px}
+  .lineup{margin-top:14px;padding-top:12px;gap:8px 18px}
+  .xrow{padding:12px 0}
+  .skills{grid-template-columns:1fr 1fr;gap:0 18px;margin-top:28px}
+  .sk{font-size:14px;padding:8px 0}
+  .about-copy{margin-top:18px}
+  .card{display:grid;grid-template-columns:40% minmax(0,1fr);max-width:none}
+  .plate{border-bottom:0;border-right:1px solid var(--line)}
+  .plate .tag{display:none}
+  .jersey{font-size:44px;right:8px;bottom:2px}
+  .card dl div{grid-template-columns:1fr;gap:1px;padding:7px 12px}
+  .card dl{font-size:11px}
+  .chart-hd{margin-bottom:0}
+  .side{margin-top:22px}
+  .bwire{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:30px 48px;height:auto}
+  .bwire .tag{grid-column:1 / -1;border-right:0;border-bottom:1px solid var(--line)}
+  .bwire .win{padding:0 14px}
+  .bwire .idx{padding:0 14px}
+  footer{padding-top:64px}
+  .fine{margin-top:22px}
 }
 @media (max-width:560px){
   .subway{display:none}
 }
 @media (max-width:430px){
-  .nav li.ab{display:none}
+  .nav .lg{display:none}.nav .sm{display:inline}
+  .nav ul{gap:13px}
+  .nav li a{letter-spacing:.1em}
+  .skills{grid-template-columns:1fr}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -578,11 +651,11 @@ body.garden .ticker-track span b{color:var(--orange)}
   .meter i{transform:none}
   .lights-on{display:none}
   .tunnel{height:64px}.tunnel .panel,.tunnel .reveal{display:none}.tunnel .meta{opacity:1}
-  .morph{height:auto}.morph-in{position:relative;height:auto}
   .rp-trail{stroke-dashoffset:0}.rp-mk{opacity:1}
   .schem .s1{opacity:1}
   .plate::after{display:none}
   .bn{transform:none}
+  .detail{transition:none}
 }
 </style>
 </head>
@@ -602,7 +675,7 @@ body.garden .ticker-track span b{color:var(--orange)}
     <li><a href="#work" data-sec="work">WORK</a></li>
     <li class="ab"><a href="#about" data-sec="about">ABOUT</a></li>
     <li><a href="#contact" data-sec="contact">CONTACT</a></li>
-    <li><a href="resume.pdf" class="rs" target="_blank" rel="noopener">RESUME ↗</a></li>
+    <li><a href="resume.pdf" class="rs" target="_blank" rel="noopener"><span class="lg">RESUME</span><span class="sm">CV</span>&nbsp;↗</a></li>
   </ul>
 </nav>
 
@@ -611,8 +684,8 @@ body.garden .ticker-track span b{color:var(--orange)}
   <div class="track"></div><div class="fill"></div>
   <a class="stop" href="#top"     style="top:0%"><span>NYC</span></a>
   <a class="stop" href="#work"    style="top:25%"><span>WORK</span></a>
-  <a class="stop" href="#chart"   style="top:50%"><span>COURT</span></a>
-  <a class="stop" href="#about"   style="top:75%"><span>ABOUT</span></a>
+  <a class="stop" href="#about"   style="top:50%"><span>ABOUT</span></a>
+  <a class="stop" href="#chart"   style="top:75%"><span>COURT</span></a>
   <a class="stop" href="#contact" style="top:100%"><span>MSG</span></a>
 </nav>
 
@@ -664,6 +737,7 @@ body.garden .ticker-track span b{color:var(--orange)}
     <div>
       <div class="id">Duke University <em>·</em> Electrical &amp; Computer Engineering <em>·</em> Class of 2030</div>
       <p>Engineering student raised in New York. I build things that work: assistive tech, code, and datasets, and I'm learning circuits and CAD along the way.</p>
+      <div class="acts"><a class="act" href="#work">View selected work <span aria-hidden="true">↓</span></a><a class="act" href="resume.pdf" target="_blank" rel="noopener">Resume <span aria-hidden="true">↗</span></a></div>
     </div>
     <div class="rotation" aria-label="Current rotation: circuits, code, economics, design. New York to Durham.">
       <div class="hd"><i></i>CURRENT ROTATION</div>
@@ -708,70 +782,221 @@ body.garden .ticker-track span b{color:var(--orange)}
 <section id="work">
   <span class="gnum" aria-hidden="true">11</span>
   <svg class="ghost" id="ghost" aria-hidden="true"></svg>
-  <div class="label mono rv">Selected work <b>03 projects · 03 experiences</b></div>
+  <div class="label mono rv">Selected work <b>03 projects · click any project for details</b></div>
 
-  <article class="proj rv" data-cur="label" data-label="READ">
+  <article class="proj rv" data-cur="label" data-label="OPEN">
     <div class="num" aria-hidden="true">01</div>
-    <div>
-      <div class="mono o">EGR 101 · Assistive technology</div>
+    <div class="pbody">
+      <div class="mono o">EGR 101 · Assistive technology · Fall 2026</div>
       <h3>Adaptive Fishing Game</h3>
-      <p>Standard controllers don't work for a child with limited mobility, so our five-person team is designing a fishing game he can play with just two switches. We interviewed him and his care team, defined the requirements, and chose a design direction.</p>
+      <p>Standard controllers don't work for a child with limited mobility, so our five-person team is designing a fishing game he can play every day using just two switches. We interviewed him and his care team, turned what we heard into requirements, and chose a design direction.</p>
       <div class="pstat"><span class="mono">Constraint</span><b>2-switch input</b></div>
       <dl class="lineup">
-        <div><dt>ROLE</dt><dd>Team member</dd></div>
-        <div><dt>TOOLS</dt><dd>Design process</dd></div>
-        <div><dt>CONSTRAINT</dt><dd>Two switches</dd></div>
-        <div><dt>TEAM</dt><dd>5</dd></div>
+        <div><dt>MY ROLE</dt><dd>Team member · 1 of 5</dd></div>
+        <div><dt>STAGE</dt><dd>Design process</dd></div>
+        <div><dt>INPUT</dt><dd>Two switches</dd></div>
+        <div><dt>USE</dt><dd>Daily</dd></div>
         <div><dt>STATUS</dt><dd class="o">In progress</dd></div>
       </dl>
+      <div class="pact"><button class="more" type="button" aria-expanded="false" aria-controls="d1">Project details <span class="pm" aria-hidden="true">+</span></button><span class="mono note">Build + testing next</span></div>
     </div>
+    <div class="detail" id="d1" role="region" aria-label="Adaptive Fishing Game details"><div class="d-clip"><div class="d-in">
+      <div>
+        <div class="mono dh">Design process · where it stands</div>
+        <ol class="stages">
+          <li class="done"><b>01</b><span>Interviews</span><em>Client + care team</em></li>
+          <li class="done"><b>02</b><span>Requirements</span><em>Defined</em></li>
+          <li class="done"><b>03</b><span>Direction</span><em>Concept chosen</em></li>
+          <li><b>04</b><span>Prototype</span><em>Next</em></li>
+          <li><b>05</b><span>Testing</span><em>Planned</em></li>
+        </ol>
+      </div>
+      <div>
+        <div class="mono dh">Requirements so far</div>
+        <ul class="reqs">
+          <li>Fully playable with two switch inputs, nothing else</li>
+          <li>Dependable enough for everyday use, not just scheduled sessions</li>
+          <li>Designed around one specific user and what he can do</li>
+        </ul>
+        <p class="dnote">CAD, prototype photos and test results get added here as the build happens.</p>
+      </div>
+    </div></div></div>
     <svg class="arc" viewBox="0 0 200 200" aria-hidden="true"><path d="M10 10V70A120 120 0 0 0 190 70V10"/></svg>
   </article>
 
-  <article class="proj rv" data-cur="label" data-label="READ">
+  <article class="proj rv" data-cur="label" data-label="OPEN">
     <div class="num" aria-hidden="true">02</div>
-    <div>
-      <div class="mono b">Python · First program</div>
+    <div class="pbody">
+      <div class="mono b">Python · Text game</div>
       <h3>Oregon Trail–Style Text Game</h3>
-      <p>A choose-your-path adventure in the spirit of The Oregon Trail. Players make a choice at every stage, and the story branches from there through if/elif logic. My first real program in Python.</p>
+      <p>A choose-your-path adventure in the spirit of The Oregon Trail. The player makes a decision at every stage, and if/elif conditionals route each choice down a different branch of the story, so the program's flow is driven entirely by user input.</p>
       <div class="pstat"><span class="mono">Logic</span><b>Branching paths</b></div>
       <dl class="lineup">
-        <div><dt>ROLE</dt><dd>Solo developer</dd></div>
+        <div><dt>MY ROLE</dt><dd>Solo · design + code</dd></div>
         <div><dt>TOOLS</dt><dd>Python</dd></div>
         <div><dt>LOGIC</dt><dd>if / elif</dd></div>
-        <div><dt>TEAM</dt><dd>1</dd></div>
-        <div><dt>STATUS</dt><dd>Complete · 2024</dd></div>
-      </dl>
-    </div>
-    <svg class="arc" viewBox="0 0 200 200" aria-hidden="true"><path d="M10 10V70A120 120 0 0 0 190 70V10"/></svg>
-  </article>
-
-  <article class="proj rv" data-cur="label" data-label="READ">
-    <div class="num" aria-hidden="true">03</div>
-    <div>
-      <div class="mono b">Research · Economics · Data</div>
-      <h3>NYC Building Dataset</h3>
-      <p>For an economics research paper, I compiled a dataset of more than 1,000 New York City buildings spanning roughly a century of construction. The work was turning scattered real-world information into one consistent dataset the analysis could rely on.</p>
-      <div class="pstat"><span class="mono">Scope</span><b>1,000+ buildings</b></div>
-      <dl class="lineup">
-        <div><dt>ROLE</dt><dd>Data compiler</dd></div>
-        <div><dt>TYPE</dt><dd>Research / Data</dd></div>
-        <div><dt>SCOPE</dt><dd>~100 yrs of NYC</dd></div>
-        <div><dt>DOMAIN</dt><dd>Economics</dd></div>
+        <div><dt>INPUT</dt><dd>Player choices</dd></div>
         <div><dt>STATUS</dt><dd>Complete</dd></div>
       </dl>
+      <div class="pact"><button class="more" type="button" aria-expanded="false" aria-controls="d2">Project details <span class="pm" aria-hidden="true">+</span></button><span class="mono note">First Python project · 2024</span></div>
     </div>
+    <div class="detail" id="d2" role="region" aria-label="Text game details"><div class="d-clip"><div class="d-in">
+      <div>
+        <div class="mono dh">Program flow · simplified</div>
+        <svg class="flow" viewBox="0 0 420 150" role="img" aria-label="Flow: start, then a choice that branches into path A or path B, each leading to another choice and different outcomes.">
+          <rect x="4" y="60" width="64" height="30"/><text x="36" y="79">START</text>
+          <path d="M68 75H104"/>
+          <rect x="104" y="60" width="72" height="30"/><text x="140" y="79">CHOICE</text>
+          <path d="M176 75C196 75 196 30 216 30M176 75C196 75 196 120 216 120"/>
+          <rect x="216" y="15" width="72" height="30"/><text x="252" y="34">PATH A</text>
+          <rect x="216" y="105" width="72" height="30"/><text x="252" y="124">PATH B</text>
+          <path d="M288 30H330M288 120H330"/>
+          <rect class="end" x="330" y="15" width="84" height="30"/><text x="372" y="34">NEXT STAGE</text>
+          <rect class="end" x="330" y="105" width="84" height="30"/><text x="372" y="124">OUTCOME</text>
+        </svg>
+      </div>
+      <div>
+        <div class="mono dh">What it demonstrates</div>
+        <ul class="reqs">
+          <li>Taking a player decision at every stage</li>
+          <li>if / elif conditionals that route each choice</li>
+          <li>Branching story paths built from those decisions</li>
+          <li>A program organized as a sequence of stages</li>
+        </ul>
+        <p class="dnote">Written in August 2024, before I used GitHub, so the code isn't published.</p>
+      </div>
+    </div></div></div>
     <svg class="arc" viewBox="0 0 200 200" aria-hidden="true"><path d="M10 10V70A120 120 0 0 0 190 70V10"/></svg>
   </article>
 
-  <div class="exp rv" aria-label="Experience">
-    <div class="exp-hd mono"><span>Experience</span><span>Engineering first</span></div>
-    <div class="xrow"><b>The LiRo Group</b><span>Structural engineering shadow on active NYC projects</span><em>NYC · Aug 2025</em></div>
-    <div class="xrow"><b>Catalyst</b><span>Duke's pre-professional tech organization</span><em>New member · 2026–</em></div>
-    <div class="xrow"><b>Certified soccer referee</b><span>Westchester Youth Soccer, 180+ matches, assistant to center ref</span><em>2023–</em></div>
+  <article class="proj rv" data-cur="label" data-label="OPEN">
+    <div class="num" aria-hidden="true">03</div>
+    <div class="pbody">
+      <div class="mono b">Research · Economics · Data</div>
+      <h3>NYC Building Dataset</h3>
+      <p>For an economics research project, I compiled a dataset of more than 1,000 New York City buildings from historical fire records, spanning roughly a century of construction. The job was turning scattered old records into one consistent dataset the analysis could rely on.</p>
+      <div class="pstat"><span class="mono">Scope</span><b>1,000+ buildings</b></div>
+      <dl class="lineup">
+        <div><dt>MY ROLE</dt><dd>Compiled the dataset</dd></div>
+        <div><dt>TOOLS</dt><dd>Google Sheets</dd></div>
+        <div><dt>SOURCE</dt><dd>Historical fire records</dd></div>
+        <div><dt>SPAN</dt><dd>~100 yrs of NYC</dd></div>
+        <div><dt>STATUS</dt><dd>Complete · 2026</dd></div>
+      </dl>
+      <div class="pact"><button class="more" type="button" aria-expanded="false" aria-controls="d3">Project details <span class="pm" aria-hidden="true">+</span></button><span class="mono note">Economics research</span></div>
+    </div>
+    <div class="detail" id="d3" role="region" aria-label="Building dataset details"><div class="d-clip"><div class="d-in">
+      <div>
+        <div class="mono dh">What each record captures</div>
+        <table class="schema">
+          <thead><tr><th>Field</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Floors</td><td>How tall buildings got</td></tr>
+            <tr><td>Elevators</td><td>Technology that made height usable</td></tr>
+            <tr><td>Fireproof status</td><td>How construction methods changed</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="mono dh">Method</div>
+        <ol class="steps">
+          <li>Worked through historical NYC fire records building by building</li>
+          <li>Logged each building's floors, elevators and fireproof status</li>
+          <li>Organized 1,000+ buildings in Google Sheets so the research could compare them across about a century</li>
+        </ol>
+        <p class="dnote">The data belongs to the research project, so rows aren't published here.</p>
+      </div>
+    </div></div></div>
+    <svg class="arc" viewBox="0 0 200 200" aria-hidden="true"><path d="M10 10V70A120 120 0 0 0 190 70V10"/></svg>
+  </article>
+
+  <div class="exp rv" aria-label="Engineering experience">
+    <div class="exp-hd mono"><span>Engineering experience</span></div>
+    <div class="xrow"><b>The LiRo Group</b><span>Structural engineering shadow. Spent a week with a structural engineer inspecting roof support systems on three NYC buildings, taking photos, field notes and measurements.</span><em>NYC · Aug 2025 · 1 week</em></div>
   </div>
 
   <div class="archive" aria-hidden="true"><span>MSG_ARCHIVE</span><i></i><span><b>BANNERS_03</b> — 70 / 73 / 26</span></div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <span class="gnum" aria-hidden="true">25</span>
+  <!-- court → Manhattan grid → circuit board, crossfading very slowly -->
+  <svg class="schem" viewBox="0 0 1100 760" preserveAspectRatio="xMinYMin meet" aria-hidden="true">
+    <g class="s1">
+      <path d="M40 40H1060V720H40Z"/><path d="M380 40V380H720V40"/>
+      <circle cx="550" cy="380" r="120"/><path d="M110 40V250A480 480 0 0 0 990 250V40"/>
+      <circle cx="550" cy="115" r="16"/><path d="M490 90H610"/>
+    </g>
+    <g class="s2" transform="rotate(29 550 380)">
+      <path d="M-200 80H1300M-200 190H1300M-200 300H1300M-200 410H1300M-200 520H1300M-200 630H1300M-200 740H1300"/>
+      <path d="M40 -300V1100M300 -300V1100M560 -300V1100M820 -300V1100M1080 -300V1100"/>
+      <path d="M-100 700L1200 60" style="opacity:.6"/>
+    </g>
+    <g class="s3">
+      <path d="M40 80H300L360 140H620V300L680 360H1060"/>
+      <path d="M40 250H200L260 310V520H540L600 580H900"/>
+      <path d="M380 40V120M720 140V40M820 360V720M160 520V720M1000 360V180H900"/>
+      <circle cx="300" cy="80" r="7"/><circle cx="620" cy="300" r="7"/><circle cx="540" cy="520" r="7"/><circle cx="900" cy="580" r="7"/><circle cx="900" cy="180" r="7"/>
+      <rect x="430" y="400" width="80" height="50"/><rect x="760" y="440" width="120" height="60"/>
+      <circle class="pad" cx="380" cy="40" r="4"/><circle class="pad" cx="720" cy="40" r="4"/><circle class="pad" cx="160" cy="720" r="4"/><circle class="pad" cx="820" cy="720" r="4"/>
+    </g>
+  </svg>
+
+  <div class="label mono rv">About / Skills</div>
+  <div class="about">
+    <div class="rv">
+      <p class="statement">Raised on New York courts and grids. Now building <em>circuits and code</em> in Durham.</p>
+      <div class="about-copy">
+        <p>I'm a first-year Electrical &amp; Computer Engineering student at Duke with a strong interest in economics. I grew up in New York City and went to NEST+m, and the city made me curious about how systems work: circuits, software, buildings, markets, the grid under Manhattan.</p>
+        <p>Before Duke, I compiled a 1,000+ building dataset covering about a century of NYC construction for an economics research project, and spent a week shadowing a structural engineer at The LiRo Group. Now I'm on an EGR 101 team designing a two-switch game for a young client, while building up Python, C++, CAD and circuits. Outside class it's sports and music, from refereeing 180+ soccer matches to baritone sax. Every one of those has a rulebook, and I like learning the rules well enough to build inside them.</p>
+      </div>
+    </div>
+
+    <aside class="card rv" aria-label="Profile card">
+      <div class="plate" id="plate">
+        <img src="jacob.jpeg" alt="Portrait of Jacob Baker-Spitzer" id="photo" width="640" height="800" loading="lazy" decoding="async">
+        <canvas id="ht" aria-hidden="true"></canvas>
+        <i class="reg a"></i><i class="reg b"></i><i class="reg c"></i>
+        <span class="tag">PLATE_01 · HALFTONE · HOVER</span>
+        <span class="jersey" aria-hidden="true">30</span>
+      </div>
+      <dl>
+        <div><dt>NAME</dt><dd>Jacob Baker-Spitzer</dd></div>
+        <div><dt>SCHOOL</dt><dd>Duke Pratt · ECE '30</dd></div>
+        <div><dt>FOCUS</dt><dd>ECE · Economics</dd></div>
+        <div><dt>HOME</dt><dd>Bronx, NY</dd></div>
+        <div><dt>CURRENTLY</dt><dd><span class="o">●</span> Adaptive Fishing Game · EGR 101</dd></div>
+      </dl>
+    </aside>
+  </div>
+
+  <div class="skills rv" id="skills" aria-label="Skills">
+    <div class="skc">
+      <div class="mono">Languages</div>
+      <div class="sk"><span>Python</span><em class="t-b">Building</em></div>
+      <div class="sk"><span>C++</span><em class="t-l">Learning</em></div>
+      <div class="sk"><span>MATLAB</span><em class="t-c">Coursework</em></div>
+    </div>
+    <div class="skc">
+      <div class="mono">Web</div>
+      <div class="sk"><span>HTML</span><em class="t-b">Building</em></div>
+      <div class="sk"><span>CSS</span><em class="t-b">Building</em></div>
+      <div class="sk"><span>JavaScript</span><em class="t-l">Learning</em></div>
+    </div>
+    <div class="skc">
+      <div class="mono">Engineering</div>
+      <div class="sk"><span>Onshape CAD</span><em class="t-c">Coursework</em></div>
+      <div class="sk"><span>Circuits</span><em class="t-c">Coursework</em></div>
+      <div class="sk"><span>Soldering</span><em class="t-c">Coursework</em></div>
+    </div>
+    <div class="skc">
+      <div class="mono">Data</div>
+      <div class="sk"><span>Google Sheets</span><em class="t-a">Applied</em></div>
+      <div class="sk"><span>Research datasets</span><em class="t-a">Applied</em></div>
+    </div>
+  </div>
+  <div class="skills-key mono"><span><i class="t-a"></i>Applied: used on real work</span><span><i class="t-b"></i>Building: actively writing</span><span><i class="t-c"></i>Coursework: used in class</span><span><i class="t-l"></i>Learning: just started</span></div>
 </section>
 
 <!-- ================= SHOT CHART ================= -->
@@ -781,7 +1006,7 @@ body.garden .ticker-track span b{color:var(--orange)}
   <div class="label mono rv">Activities / Shot chart</div>
   <div class="chart-hd rv">
     <h2 class="big">Every dot is <span class="o">a rep.</span></h2>
-    <p>Sports, music, leadership and engineering, plotted on a half court. Hover a dot, or filter by type.</p>
+    <p>Sports, music, leadership and clubs, plotted on a half court. Hover or tap a dot, or filter by type.</p>
   </div>
 
   <div class="chart-wrap" id="chartWrap">
@@ -832,84 +1057,6 @@ body.garden .ticker-track span b{color:var(--orange)}
   </div>
 </section>
 
-<!-- ================= ABOUT ================= -->
-<section id="about">
-  <span class="gnum" aria-hidden="true">25</span>
-  <!-- court → Manhattan grid → circuit board, crossfading very slowly -->
-  <svg class="schem" viewBox="0 0 1100 760" preserveAspectRatio="xMinYMin meet" aria-hidden="true">
-    <g class="s1">
-      <path d="M40 40H1060V720H40Z"/><path d="M380 40V380H720V40"/>
-      <circle cx="550" cy="380" r="120"/><path d="M110 40V250A480 480 0 0 0 990 250V40"/>
-      <circle cx="550" cy="115" r="16"/><path d="M490 90H610"/>
-    </g>
-    <g class="s2" transform="rotate(29 550 380)">
-      <path d="M-200 80H1300M-200 190H1300M-200 300H1300M-200 410H1300M-200 520H1300M-200 630H1300M-200 740H1300"/>
-      <path d="M40 -300V1100M300 -300V1100M560 -300V1100M820 -300V1100M1080 -300V1100"/>
-      <path d="M-100 700L1200 60" style="opacity:.6"/>
-    </g>
-    <g class="s3">
-      <path d="M40 80H300L360 140H620V300L680 360H1060"/>
-      <path d="M40 250H200L260 310V520H540L600 580H900"/>
-      <path d="M380 40V120M720 140V40M820 360V720M160 520V720M1000 360V180H900"/>
-      <circle cx="300" cy="80" r="7"/><circle cx="620" cy="300" r="7"/><circle cx="540" cy="520" r="7"/><circle cx="900" cy="580" r="7"/><circle cx="900" cy="180" r="7"/>
-      <rect x="430" y="400" width="80" height="50"/><rect x="760" y="440" width="120" height="60"/>
-      <circle class="pad" cx="380" cy="40" r="4"/><circle class="pad" cx="720" cy="40" r="4"/><circle class="pad" cx="160" cy="720" r="4"/><circle class="pad" cx="820" cy="720" r="4"/>
-    </g>
-  </svg>
-
-  <div class="label mono rv">About / Skills</div>
-  <div class="about">
-    <div class="rv">
-      <p class="statement">Raised on New York courts and grids. Now building <em>circuits and code</em> in Durham.</p>
-      <div class="about-copy">
-        <p>I'm a first-year Electrical &amp; Computer Engineering student at Duke, and economics is the other half of how I think. I grew up in New York City and went to NEST+m, which meant years of subways, gyms, and wondering how a city that big actually keeps running.</p>
-        <p>That question never really left. I like getting inside systems: circuits, software, buildings, markets, the grid under Manhattan. Before Duke I built a dataset of more than 1,000 New York buildings covering about a century of construction for an economics research paper, and I shadowed a structural engineer at The LiRo Group on real NYC projects. Both taught me that the interesting part is usually in how the pieces connect.</p>
-        <p>At Duke, my EGR 101 team is designing a fishing game for a young kid who needs to play with two switches instead of a normal controller. It's the first time I've designed something for one specific person, and it changes every decision. Along the way I'm getting better at Python, C++, CAD, circuits, and soldering.</p>
-        <p>Outside engineering, most of my life has been sports and music. I've refereed 180+ soccer matches, captained varsity soccer and tennis, earned a black belt in karate, and played baritone sax in the advanced jazz band. Every one of those has a rulebook. I like learning the rules well enough to play inside them, and eventually to build something new within them.</p>
-      </div>
-    </div>
-
-    <aside class="card rv" aria-label="Profile card">
-      <div class="plate" id="plate">
-        <img src="jacob.jpeg" alt="Portrait of Jacob Baker-Spitzer" id="photo">
-        <canvas id="ht" aria-hidden="true"></canvas>
-        <i class="reg a"></i><i class="reg b"></i><i class="reg c"></i>
-        <span class="tag">PLATE_01 · HALFTONE · HOVER</span>
-        <span class="jersey" aria-hidden="true">30</span>
-      </div>
-      <dl>
-        <div><dt>NAME</dt><dd>Jacob Baker-Spitzer</dd></div>
-        <div><dt>SCHOOL</dt><dd>Duke Pratt · ECE '30</dd></div>
-        <div><dt>FOCUS</dt><dd>ECE · Economics</dd></div>
-        <div><dt>HOME</dt><dd>Bronx, NY</dd></div>
-        <div><dt>BASE</dt><dd>Durham, NC</dd></div>
-        <div><dt>CURRENTLY</dt><dd><span class="o">●</span> Catalyst new member</dd></div>
-      </dl>
-    </aside>
-  </div>
-
-  <div class="skills rv" id="skills" aria-label="Skills">
-    <div class="skc">
-      <div class="mono">Code</div>
-      <div class="sk"><span class="name">Python</span><div class="meter"><i class="f"></i><i class="f"></i><i></i></div><span class="tier">BUILDING</span></div>
-      <div class="sk"><span class="name">C++</span><div class="meter"><i class="f"></i><i></i><i></i></div><span class="tier">LEARNING</span></div>
-      <div class="sk"><span class="name">HTML / CSS</span><div class="meter"><i class="f"></i><i class="f"></i><i></i></div><span class="tier">BUILDING</span></div>
-    </div>
-    <div class="skc">
-      <div class="mono">Engineering</div>
-      <div class="sk"><span class="name">Onshape CAD</span><div class="meter"><i class="f"></i><i></i><i></i></div><span class="tier">LEARNING</span></div>
-      <div class="sk"><span class="name">Circuits</span><div class="meter"><i class="f"></i><i></i><i></i></div><span class="tier">LEARNING</span></div>
-      <div class="sk"><span class="name">Soldering</span><div class="meter"><i class="f"></i><i></i><i></i></div><span class="tier">LEARNING</span></div>
-    </div>
-    <div class="skc">
-      <div class="mono">Data</div>
-      <div class="sk"><span class="name">Google Sheets</span><div class="meter"><i class="f o"></i><i class="f o"></i><i class="f o"></i></div><span class="tier">CORE</span></div>
-      <div class="sk"><span class="name">Research datasets</span><div class="meter"><i class="f"></i><i class="f"></i><i></i></div><span class="tier">APPLIED</span></div>
-      <div class="sk"><span class="name">Engineering design</span><div class="meter"><i class="f"></i><i class="f"></i><i></i></div><span class="tier">APPLIED</span></div>
-    </div>
-  </div>
-  <div class="skills-key mono">Tiers: Core = daily use · Applied / Building = used on real work · Learning = in coursework now</div>
-</section>
 </main>
 
 <!-- ================= FOOTER: THE GARDEN ================= -->
@@ -929,24 +1076,14 @@ body.garden .ticker-track span b{color:var(--orange)}
     <div class="label mono">Contact</div>
     <h2 class="garden">See you at the<br><span class="o">Garden.</span></h2>
 
-    <div class="bwire" id="bwire" aria-label="The build, 2022 to 2026">
+    <div class="bwire" id="bwire">
       <span class="tag">THE BUILD_22–26</span>
-      <div class="win">
-        <div class="trk" id="bwTrk">
-          <span><b>07.12.22</b>SIGNED BRUNSON</span><i>→</i>
-          <span><b>02.09.23</b>ACQUIRED HART</span><i>→</i>
-          <span><b>12.30.23</b>ACQUIRED ANUNOBY</span><i>→</i>
-          <span><b>07.06.24</b>ACQUIRED BRIDGES</span><i>→</i>
-          <span><b>10.02.24</b>ACQUIRED TOWNS</span><i>→</i>
-          <span class="ch"><b>06.13.26</b>CHAMPIONS · 94–90</span><i>·</i>
-          <span aria-hidden="true"><b>07.12.22</b>SIGNED BRUNSON</span><i>→</i>
-          <span aria-hidden="true"><b>02.09.23</b>ACQUIRED HART</span><i>→</i>
-          <span aria-hidden="true"><b>12.30.23</b>ACQUIRED ANUNOBY</span><i>→</i>
-          <span aria-hidden="true"><b>07.06.24</b>ACQUIRED BRIDGES</span><i>→</i>
-          <span aria-hidden="true"><b>10.02.24</b>ACQUIRED TOWNS</span><i>→</i>
-          <span aria-hidden="true" class="ch"><b>06.13.26</b>CHAMPIONS · 94–90</span><i>·</i>
-        </div>
-      </div>
+      <div class="win" aria-hidden="true"><div class="tx" id="bwTx"><b id="bwD">07.12.22</b><span id="bwN">SIGNED BRUNSON</span></div></div>
+      <span class="idx" id="bwI" aria-hidden="true">01 / 06</span>
+      <ol class="sr">
+        <li>July 12, 2022: signed Jalen Brunson</li><li>February 9, 2023: acquired Josh Hart</li><li>December 30, 2023: acquired OG Anunoby</li>
+        <li>July 6, 2024: acquired Mikal Bridges</li><li>October 2, 2024: acquired Karl-Anthony Towns</li><li>June 13, 2026: champions, 94–90</li>
+      </ol>
     </div>
 
     <nav class="rail" aria-label="Contact">
@@ -1003,8 +1140,9 @@ function mode(cls, ms){ document.body.classList.add(cls); root.style.setProperty
 function setTicker(rate){ $('#ticker').getAnimations().forEach(a => a.playbackRate = rate); }
 // visibility of each section drives which idle system is allowed to move
 const vis = {};
-const vio = new IntersectionObserver(es => es.forEach(e => { vis[e.target.id] = e.isIntersecting; e.target.classList.toggle('vis', e.isIntersecting); }), {threshold:0});
-['top','work','chart','about','contact'].forEach(id => vio.observe(document.getElementById(id)));
+const visHooks = {};
+const vio = new IntersectionObserver(es => es.forEach(e => { vis[e.target.id] = e.isIntersecting; e.target.classList.toggle('vis', e.isIntersecting); if (visHooks[e.target.id]) visHooks[e.target.id](e.isIntersecting); }), {threshold:0});
+['top','work','about','chart','contact'].forEach(id => vio.observe(document.getElementById(id)));
 
 /* =====================================================================
    DATA: activities (edit here; dots, list and filters all update)
@@ -1033,13 +1171,18 @@ const ring = $('.ring'), dotC = $('.cursor'), ringLabel = ring.querySelector('b'
 let mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my, rx0 = 0;
 function setCursor(state, label=''){ ring.className = 'ring' + (state ? ' '+state : ''); ringLabel.textContent = label; }
 if (fine){
-  addEventListener('mousemove', e => { if (!rx0){ rx0 = 1; rx = e.clientX; ry = e.clientY; document.body.classList.add('moved'); } mx=e.clientX; my=e.clientY; dotC.style.transform=`translate(${mx}px,${my}px)`; }, {passive:true});
-  (function loop(){ rx += (mx-rx)*.2; ry += (my-ry)*.2; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(loop); })();
+  root.classList.add('cc');
+  let ringBusy = false;
+  const ringLoop = () => { rx += (mx-rx)*.2; ry += (my-ry)*.2; ring.style.transform=`translate(${rx}px,${ry}px)`;
+    if (Math.abs(mx-rx) + Math.abs(my-ry) > .3) requestAnimationFrame(ringLoop); else ringBusy = false; };
+  addEventListener('mousemove', e => { if (!rx0){ rx0 = 1; rx = e.clientX; ry = e.clientY; document.body.classList.add('moved'); } mx=e.clientX; my=e.clientY; dotC.style.transform=`translate(${mx}px,${my}px)`;
+    if (!ringBusy){ ringBusy = true; requestAnimationFrame(ringLoop); } }, {passive:true});
   document.addEventListener('mouseover', e => {
     const el = e.target.closest('[data-cur], a, button');
     if (!el) return setCursor('');
     const c = el.dataset.cur;
-    if (c === 'label') setCursor('lbl', el.dataset.label || 'VIEW');
+    if (el.classList.contains('proj')) setCursor('lbl', el.classList.contains('open') ? 'CLOSE' : 'OPEN');
+    else if (c === 'label') setCursor('lbl', el.dataset.label || 'VIEW');
     else if (el.classList.contains('dot')) setCursor('lbl','OPEN');
     else if (c === 'data') setCursor('data');
     else setCursor('link');
@@ -1072,18 +1215,19 @@ let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeo
 const hero = $('#top'), courtSvg = $('#courtHero'), L1=$('#L1'), L2=$('#L2'), L3=$('#L3');
 let tx=0, ty=0, cx=0, cy=0;
 if (!reduce){
-  hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); tx = (e.clientX - r.left)/r.width - .5; ty = (e.clientY - r.top)/r.height - .5; });
-  hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; });
-  (function parallax(){
-    if (vis.top !== false && Math.abs(cx-tx) + Math.abs(cy-ty) > .0005){
-      cx = lerp(cx, tx, .06); cy = lerp(cy, ty, .06);   // settles instead of stopping
-      courtSvg.style.transform = `rotateY(${cx*7}deg) rotateX(${-cy*6}deg)`;
-      L1.setAttribute('transform', `translate(${cx*-8} ${cy*-6})`);
-      L2.setAttribute('transform', `translate(${cx*-16} ${cy*-12})`);
-      L3.setAttribute('transform', `translate(${cx*-26} ${cy*-20})`);
-    }
+  let pBusy = false;
+  const kick = () => { if (!pBusy){ pBusy = true; requestAnimationFrame(parallax); } };
+  hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); tx = (e.clientX - r.left)/r.width - .5; ty = (e.clientY - r.top)/r.height - .5; kick(); });
+  hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; kick(); });
+  function parallax(){
+    if (vis.top === false || Math.abs(cx-tx) + Math.abs(cy-ty) < .0005){ pBusy = false; return; }
+    cx = lerp(cx, tx, .06); cy = lerp(cy, ty, .06);   // settles instead of stopping
+    courtSvg.style.transform = `rotateY(${cx*7}deg) rotateX(${-cy*6}deg)`;
+    L1.setAttribute('transform', `translate(${cx*-8} ${cy*-6})`);
+    L2.setAttribute('transform', `translate(${cx*-16} ${cy*-12})`);
+    L3.setAttribute('transform', `translate(${cx*-26} ${cy*-20})`);
     requestAnimationFrame(parallax);
-  })();
+  }
 }
 
 /* =====================================================================
@@ -1198,9 +1342,12 @@ function finale(){
 
 // scheduler: virtual time only advances while the hero is on screen and the scorebug isn't hovered
 let rt = 0, ri = 0, rLast = performance.now(), rPaused = false;
+let rRun = false;
+function startReplay(){ if (rRun || reduce) return; rRun = true; rLast = performance.now(); requestAnimationFrame(replayTick); }
 function replayTick(now){
+  if (vis.top === false || document.hidden){ rRun = false; return; }
   const dt = Math.min(.1, (now - rLast)/1000); rLast = now;
-  if (!rPaused && vis.top !== false && !document.hidden){
+  if (!rPaused){
     rt += dt;
     while (ri < TL.length && rt >= TL[ri][0]) TL[ri++][1]();
     if (rt >= LOOP){ rt = 0; ri = 0; }
@@ -1212,7 +1359,9 @@ if (reduce){
   TL.slice(0, -1).forEach(([, fn]) => fn());
   setTimeout(() => { setEvent('1 UP', 'o'); }, 0);
 } else {
-  requestAnimationFrame(replayTick);
+  startReplay();
+  visHooks.top = on => { if (on) startReplay(); };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) startReplay(); });
   setTimeout(wakeOne, 2400);
 }
 const sbug = $('#sbug');
@@ -1450,15 +1599,37 @@ photo.addEventListener('error', () => $('#plate').classList.add('fallback'));
 /* =====================================================================
    FOOTER: THE BUILD wire (desktop scrolls; phones cycle one move at a time)
    ===================================================================== */
-const foot = $('#contact'), phone = matchMedia('(max-width:820px)');
-const wireItems = $$('#bwTrk > span:not([aria-hidden])');
-let wi = 0; wireItems[0].classList.add('on');
+const foot = $('#contact');
+const TXW = [['07.12.22','SIGNED BRUNSON'],['02.09.23','ACQUIRED HART'],['12.30.23','ACQUIRED ANUNOBY'],['07.06.24','ACQUIRED BRIDGES'],['10.02.24','ACQUIRED TOWNS'],['06.13.26','CHAMPIONS · 94–90']];
+const bwTx = $('#bwTx');
+let wi = 0;
 setInterval(() => {
-  if (!phone.matches || !vis.contact || document.hidden) return;
-  wireItems[wi].classList.remove('on'); wi = (wi + 1) % wireItems.length; wireItems[wi].classList.add('on');
-}, 3200);
+  if (!vis.contact || document.hidden) return;
+  bwTx.classList.add('out');
+  setTimeout(() => {
+    wi = (wi + 1) % TXW.length;
+    $('#bwD').textContent = TXW[wi][0]; $('#bwN').textContent = TXW[wi][1];
+    $('#bwI').textContent = `${String(wi+1).padStart(2,'0')} / 06`;
+    bwTx.classList.toggle('ch', wi === TXW.length - 1);
+    bwTx.classList.remove('out'); bwTx.classList.add('pre'); void bwTx.offsetWidth; bwTx.classList.remove('pre');
+  }, reduce ? 0 : 340);
+}, 3500);
 // banners drop in from the footer's top edge once, when the Garden comes into view
 new IntersectionObserver(([e]) => { if (e.isIntersecting) foot.classList.add('down'); }, {threshold:.15}).observe(foot);
+
+/* =====================================================================
+   WORK: project details expand in place
+   ===================================================================== */
+$$('.proj').forEach(p => {
+  const btn = p.querySelector('.more');
+  const toggle = () => {
+    const open = !p.classList.contains('open');
+    p.classList.toggle('open', open); btn.setAttribute('aria-expanded', open);
+    if (fine && p.matches(':hover')) setCursor('lbl', open ? 'CLOSE' : 'OPEN');
+  };
+  btn.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+  p.addEventListener('click', e => { if (e.target.closest('a, button, .d-in') || getSelection().toString()) return; toggle(); });
+});
 
 /* =====================================================================
    GARDEN MODE: click the tiny 33 three times
@@ -1474,8 +1645,8 @@ $('#egg').addEventListener('click', () => {
    ===================================================================== */
 const tunnel = $('#tunnel'), morph = $('#morph'), zoom = $('#zoom'), chartSec = $('#chart');
 const stops = $$('.stop'), morphIn = $('.morph-in'), side = $('#side'), navLinks = $$('.nav li a[data-sec]');
-const secIds = ['top','work','chart','about','contact'];
-const navFor = {work:'work', chart:'work', about:'about', contact:'contact'};
+const secIds = ['top','work','about','chart','contact'];
+const navFor = {work:'work', about:'about', contact:'contact'};
 let ticking = false;
 function onScroll(){
   ticking = false;
@@ -1491,8 +1662,8 @@ function onScroll(){
   tunnel.style.setProperty('--open', clamp((tp - .5) * 2).toFixed(3));
 
   // COURT: the three-point arc pulls back into the full shot chart (short sticky)
-  const mr = morph.getBoundingClientRect(), mp = reduce ? 1 : clamp(-mr.top / Math.max(1, mr.height - vh + 120));
-  const z = clamp(mp / .8), e = 1 - Math.pow(1 - z, 3);
+  const mr = morph.getBoundingClientRect(), mp = reduce ? 1 : clamp((vh * .92 - mr.top) / (vh * .72));
+  const z = mp, e = 1 - Math.pow(1 - z, 3);
   zoom.style.transform = `scale(${lerp(5.2, 1, e).toFixed(4)})`;
   chartBox.style.setProperty('--rest', clamp((z - .35)/.5).toFixed(3));
   chartBox.style.setProperty('--hot', (1 - clamp((z - .55)/.4)).toFixed(3));
