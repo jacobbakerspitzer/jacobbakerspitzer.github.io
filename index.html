@@ -5,20 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jacob Baker-Spitzer</title>
 
-  <!-- Two fonts from Google: "Cormorant Garamond" (elegant serif, for headings) and "Inter" (clean, for body text) -->
+  <!-- Fonts: "Cormorant Garamond" (elegant serif for headings) + "Inter" (clean body text) -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* COLORS: 4 lines control the whole look */
+    /* COLORS: these lines control the whole look */
     :root {
-      --paper: #faf8f4;     /* off-white background (softer than pure white) */
+      --paper: #faf8f4;     /* off-white background */
       --ink: #1c1c1c;       /* main text */
-      --muted: #8a8580;     /* gray for dates and small labels */
+      --muted: #8a8580;     /* gray for dates and labels */
       --line: #e6e1d9;      /* thin divider lines */
+      --accent: #9c6b3f;    /* warm bronze accent (icons, hovers) */
     }
 
-    /* Resets the browser's default spacing so we control it ourselves */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }   /* nav links glide instead of jumping */
 
     body {
       background: var(--paper);
@@ -28,61 +29,104 @@
       line-height: 1.7;
     }
 
-    /* Keeps everything in a centered column with space around it */
-    .page { max-width: 880px; margin: 0 auto; padding: 96px 28px 80px; }
+    /* ---------- TOP BAR (sticks to the top as you scroll) ---------- */
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250, 248, 244, 0.85);
+      backdrop-filter: blur(8px);           /* frosted-glass effect */
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar .inner { max-width: 880px; margin: 0 auto; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .monogram { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-style: italic; color: var(--ink); text-decoration: none; }
+    .topbar nav a { color: var(--muted); text-decoration: none; font-size: 13px; margin-left: 22px; letter-spacing: 0.04em; }
+    .topbar nav a:hover { color: var(--ink); }
 
-    /* ---------- TOP SECTION (name + photo) ---------- */
+    .page { max-width: 880px; margin: 0 auto; padding: 80px 28px 80px; }
 
-    /* "grid" puts the text and photo side by side: text gets 1.3 parts, photo gets 1 part */
+    /* ---------- HERO (name + photo) ---------- */
     .hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 64px; align-items: end; }
-
     .eyebrow { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
-
-    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 64px; line-height: 1.02; letter-spacing: -0.01em; }
-    h1 em { font-style: italic; }   /* makes "Baker-Spitzer" italic */
-
+    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 68px; line-height: 1.0; letter-spacing: -0.01em; }
+    h1 em { font-style: italic; color: var(--accent); }
     .tagline { margin-top: 22px; color: #4a4744; max-width: 420px; }
 
     .links { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 22px; }
-    .links a { color: var(--ink); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
-    .links a:hover { color: var(--muted); border-color: var(--muted); }
+    .links a { color: var(--ink); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 2px; transition: color .2s, border-color .2s; }
+    .links a:hover { color: var(--accent); border-color: var(--accent); }
 
-    .photo img { width: 100%; display: block; filter: grayscale(15%); }
+    /* Photo with a thin offset frame behind it */
+    .photo { position: relative; }
+    .photo::before { content: ""; position: absolute; inset: 14px -14px -14px 14px; border: 1px solid var(--accent); z-index: -1; }
+    .photo img { width: 100%; display: block; }
 
-    /* ---------- SECTIONS (About, Activities) ---------- */
+    /* ---------- NUMBERS STRIP ---------- */
+    .stats { margin-top: 90px; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .stat { padding: 26px 0; text-align: center; }
+    .stat + .stat { border-left: 1px solid var(--line); }
+    .stat b { display: block; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 40px; line-height: 1.1; }
+    .stat span { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
-    section { margin-top: 110px; display: grid; grid-template-columns: 200px 1fr; gap: 40px; }
+    /* ---------- SECTIONS ---------- */
+    section { margin-top: 110px; display: grid; grid-template-columns: 200px 1fr; gap: 40px; scroll-margin-top: 90px; }
+    h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 32px; line-height: 1.1; }
+    .num { display: block; font-family: 'Inter', sans-serif; font-size: 12px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .about p + p { margin-top: 16px; }
 
-    h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 30px; line-height: 1.1; }
-
-    .about p + p { margin-top: 16px; }   /* space between About paragraphs */
-
-    /* Each activity row: name/details on the left, years on the right */
-    .item { display: flex; justify-content: space-between; gap: 24px; padding: 22px 0; border-top: 1px solid var(--line); }
+    /* Each activity row: icon | text | years */
+    .item { display: grid; grid-template-columns: 48px 1fr auto; gap: 20px; padding: 24px 0; border-top: 1px solid var(--line); transition: transform .25s; }
     .item:last-child { border-bottom: 1px solid var(--line); }
+    .item:hover { transform: translateX(6px); }                 /* slides slightly right on hover */
+    .item:hover .icon { background: var(--accent); color: var(--paper); }
+
+    .icon { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: var(--accent); transition: background .25s, color .25s; }
+    .icon svg { width: 24px; height: 24px; }
+
     .item h3 { font-size: 16px; font-weight: 500; }
     .item .role { color: var(--muted); font-size: 14px; }
     .item p { margin-top: 6px; font-size: 15px; color: #4a4744; max-width: 460px; }
     .years { color: var(--muted); font-size: 14px; white-space: nowrap; }
 
-    footer { margin-top: 110px; font-size: 13px; color: var(--muted); }
+    footer { margin-top: 110px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+    footer a { color: var(--muted); }
 
-    /* ---------- PHONES: stack everything in one column on small screens ---------- */
+    /* ---------- FADE-IN ANIMATION (the script at the bottom triggers it) ---------- */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ---------- PHONES ---------- */
     @media (max-width: 700px) {
-      .page { padding-top: 56px; }
+      .topbar nav a { margin-left: 14px; }
+      .page { padding-top: 48px; }
       .hero, section { grid-template-columns: 1fr; gap: 28px; }
-      .photo { order: -1; max-width: 260px; }   /* photo goes above the name on phones */
-      h1 { font-size: 46px; }
+      .photo { order: -1; max-width: 250px; }
+      h1 { font-size: 48px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(3) { border-left: none; }
+      .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
       section { margin-top: 72px; }
-      .item { flex-direction: column; gap: 4px; }
+      .item { grid-template-columns: 44px 1fr; }
+      .years { grid-column: 2; }
     }
   </style>
 </head>
 <body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="inner">
+      <a class="monogram" href="#">JBS</a>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#activities">Activities</a>
+        <a href="resume.pdf">Resume</a>
+      </nav>
+    </div>
+  </div>
+
   <div class="page">
 
-    <!-- TOP: name, one-liner, links, photo -->
-    <header class="hero">
+    <!-- HERO -->
+    <header class="hero reveal">
       <div>
         <p class="eyebrow">Electrical &amp; Computer Engineering · Duke University</p>
         <h1>Jacob<br><em>Baker-Spitzer</em></h1>
@@ -99,9 +143,17 @@
       </div>
     </header>
 
+    <!-- NUMBERS STRIP -->
+    <div class="stats reveal">
+      <div class="stat"><b>13</b><span>Years of karate</span></div>
+      <div class="stat"><b>180+</b><span>Matches refereed</span></div>
+      <div class="stat"><b>1,000+</b><span>Buildings researched</span></div>
+      <div class="stat"><b>2&times;</b><span>Varsity captain</span></div>
+    </div>
+
     <!-- ABOUT -->
-    <section>
-      <h2>About</h2>
+    <section id="about" class="reveal">
+      <h2><span class="num">01</span>About</h2>
       <div class="about">
         <p>I grew up in New York City and I'm now a first-year engineering student at Duke, studying Electrical &amp; Computer Engineering with an interest in economics. I like understanding how things work, whether that's a circuit, a building, or a city.</p>
         <p>Before Duke, I compiled a 1,000+ building dataset on a century of New York construction for an economics research paper, and shadowed a structural engineer at The LiRo Group. Right now I'm building my Python and C++ skills and looking for research, engineering projects, and internships.</p>
@@ -109,11 +161,13 @@
     </section>
 
     <!-- ACTIVITIES: copy one <div class="item"> block to add another -->
-    <section>
-      <h2>Activities</h2>
+    <section id="activities" class="reveal">
+      <h2><span class="num">02</span>Activities</h2>
       <div>
 
         <div class="item">
+          <!-- icon: tied belt -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10h20"/><path d="M2 13h20"/><rect x="9.5" y="8.5" width="5" height="6" rx="1"/><path d="M10.5 14.5 8 21"/><path d="M13.5 14.5 16 21"/></svg></div>
           <div>
             <h3>Riverdale Kenshikai Karate</h3>
             <span class="role">Junior Black Belt &amp; Assistant Instructor</span>
@@ -123,6 +177,8 @@
         </div>
 
         <div class="item">
+          <!-- icon: whistle -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14" r="5"/><path d="M13 11.5 21 8v4l-7 1"/><path d="M5 6 7 9"/><circle cx="9" cy="14" r="1.2"/></svg></div>
           <div>
             <h3>Westchester Youth Soccer League</h3>
             <span class="role">Certified Referee</span>
@@ -132,6 +188,8 @@
         </div>
 
         <div class="item">
+          <!-- icon: soccer ball -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m12 8 3.2 2.3-1.2 3.7h-4l-1.2-3.7Z"/><path d="M12 8V3.5"/><path d="m15.2 10.3 4.3-1.4"/><path d="m14 14 2.7 3.7"/><path d="m10 14-2.7 3.7"/><path d="M8.8 10.3 4.5 8.9"/></svg></div>
           <div>
             <h3>Varsity Soccer, NEST+m</h3>
             <span class="role">Two-Year Captain</span>
@@ -141,6 +199,8 @@
         </div>
 
         <div class="item">
+          <!-- icon: tennis ball -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6a9 9 0 0 1 0 12.8"/><path d="M18.4 5.6a9 9 0 0 0 0 12.8"/></svg></div>
           <div>
             <h3>Varsity Tennis, NEST+m</h3>
             <span class="role">Two-Year Captain</span>
@@ -150,6 +210,8 @@
         </div>
 
         <div class="item">
+          <!-- icon: spark -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v5"/><path d="M12 16v5"/><path d="M3 12h5"/><path d="M16 12h5"/><path d="m6 6 3 3"/><path d="m15 15 3 3"/><path d="m18 6-3 3"/><path d="m9 15-3 3"/></svg></div>
           <div>
             <h3>Catalyst, Duke University</h3>
             <span class="role">New Member</span>
@@ -159,6 +221,8 @@
         </div>
 
         <div class="item">
+          <!-- icon: lightbulb -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg></div>
           <div>
             <h3>Ignite, Duke University</h3>
             <span class="role">Incoming Engineering Trainer</span>
@@ -168,6 +232,8 @@
         </div>
 
         <div class="item">
+          <!-- icon: music note -->
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
           <div>
             <h3>More at NEST+m</h3>
             <span class="role">Advanced Jazz Band · National Honor Society · Baseball Club Co-Founder</span>
@@ -178,8 +244,21 @@
       </div>
     </section>
 
-    <footer>© 2026 Jacob Baker-Spitzer</footer>
+    <footer>
+      <span>© 2026 Jacob Baker-Spitzer</span>
+      <a href="#">Back to top ↑</a>
+    </footer>
 
   </div>
+
+  <!-- SCRIPT: fades each section in as you scroll to it -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  </script>
 </body>
 </html>
