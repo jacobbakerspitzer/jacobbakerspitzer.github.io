@@ -86,6 +86,16 @@
     .item p { margin-top: 6px; font-size: 15px; color: #4a4744; max-width: 460px; }
     .years { color: var(--muted); font-size: 14px; white-space: nowrap; }
 
+
+    /* ---------- PROJECTS ---------- */
+    .project { padding: 26px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 180px; gap: 28px; align-items: start; }
+    .project:last-child { border-bottom: 1px solid var(--line); }
+    .project.no-img { grid-template-columns: 1fr; }
+    .project h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 24px; line-height: 1.2; }
+    .project .meta { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 4px 0 10px; }
+    .project p { font-size: 15px; color: #4a4744; }
+    .project img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+
     footer { margin-top: 110px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
     footer a { color: var(--muted); }
 
@@ -105,6 +115,8 @@
       .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
       section { margin-top: 72px; }
       .item { grid-template-columns: 44px 1fr; }
+      .project { grid-template-columns: 1fr; }
+      .project img { max-width: 220px; }
       .years { grid-column: 2; }
     }
   </style>
@@ -117,6 +129,7 @@
       <a class="monogram" href="#">JBS</a>
       <nav>
         <a href="#about">About</a>
+        <a href="#projects">Projects</a>
         <a href="#activities">Activities</a>
         <a href="resume.pdf">Resume</a>
       </nav>
@@ -160,9 +173,34 @@
       </div>
     </section>
 
+    <!-- PROJECTS: copy one <div class="project"> block to add another -->
+    <section id="projects" class="reveal">
+      <h2><span class="num">02</span>Projects</h2>
+      <div>
+
+        <div class="project no-img">
+          <div>
+            <h3>Adaptive Fishing Game</h3>
+            <p class="meta">EGR 101 · Assistive technology · Fall 2026 – present</p>
+            <p>Standard game controllers don't work for a child with limited mobility, so our 5-person team is designing a fishing game he can play with just two switches. We're following the engineering design process, starting by interviewing him and his care team. So far we've defined the requirements and chosen a design direction.</p>
+          </div>
+        </div>
+
+        <div class="project">
+          <div>
+            <h3>Hands-On Engineering Builds</h3>
+            <p class="meta">EGR 101 · Soldering · 3D printing · Fall 2026</p>
+            <p>My first hands-on builds at Duke. I soldered a circuit that switches LED lights behind a custom sign, and 3D-printed a mug with the Duke logo on the bottom. They taught me the basics of turning a design into a real, working object.</p>
+          </div>
+          <img src="mug.jpg" alt="3D-printed mug with the Duke logo on the bottom">
+        </div>
+
+      </div>
+    </section>
+
     <!-- ACTIVITIES: copy one <div class="item"> block to add another -->
     <section id="activities" class="reveal">
-      <h2><span class="num">02</span>Activities</h2>
+      <h2><span class="num">03</span>Activities</h2>
       <div>
 
         <div class="item">
